@@ -38,26 +38,41 @@ class ExcelParser {
     return DOC_TYPES.UNKNOWN;
   }
 
-  // Parse applicant name from header row (A4/B4, A5/B5)
+  // Parse applicant name from header rows with high tolerance for spacing, colons, and parentheses
   static extractApplicantName(sheet) {
-    // Usually Row 4 in KCA official templates
-    for (const r of [4, 5]) {
-      for (const col of ['A', 'B']) {
-        const val = sheet[`${col}${r}`]?.v;
-        if (val) {
-          const s = String(val).trim();
-          if (s.includes('응시자') && s.includes('명')) {
-            const match = s.match(/응시자\s*명[^(:]*(?:\([^)]*\))?\s*:\s*([가-힣a-zA-Z]{2,10})/);
-            if (match && match[1]) {
-              return match[1].trim();
+    // Check rows 3 to 6, columns A to D
+    for (let r = 3; r <= 6; r++) {
+      for (const col of ['A', 'B', 'C', 'D']) {
+        const cell = sheet[`${col}${r}`];
+        const val = cell ? String(cell.w || cell.v || '').trim() : '';
+        if (!val) continue;
+
+        // Check if this cell contains applicant label keywords
+        if (val.includes('응시자') || val.includes('성명')) {
+          // Case 1: Name is in the SAME cell
+          // Handles:
+          // '응시자 명 : 김철규', '응시자 명:김철규', '응시자 명 :김철규', '응시자 명: 김철규'
+          // '응시자 명(필수작성):김철규', '응시자 명(필수작성): 김철규'
+          // '응시자명: 김철규', '응시자명 : 김철규', '성명 : 김철규', '응시자 : 김철규' 등
+          const inlineMatch = val.match(/(?:응시자\s*명|성\s*명|응시자)\s*(?:\([^)]*\))?\s*[:：]?\s*([가-힣a-zA-Z\s]{2,15})$/);
+          if (inlineMatch && inlineMatch[1]) {
+            const candidate = inlineMatch[1].trim();
+            // Ensure candidate is not just a label
+            if (candidate && !candidate.includes('필수') && !candidate.includes('작성')) {
+              return candidate;
             }
-            // Check adjacent cell (e.g. B4)
-            const nextCol = col === 'A' ? 'B' : 'C';
-            const nextVal = sheet[`${nextCol}${r}`]?.v;
-            if (nextVal && typeof nextVal === 'string') {
-              const nameCandidate = nextVal.trim();
-              if (/^[가-힣a-zA-Z]{2,10}$/.test(nameCandidate)) {
-                return nameCandidate;
+          }
+
+          // Case 2: Name is in the ADJACENT cell(s) in the same row
+          const colCode = col.charCodeAt(0);
+          for (let offset = 1; offset <= 3; offset++) {
+            const nextCol = String.fromCharCode(colCode + offset);
+            const nextCell = sheet[`${nextCol}${r}`];
+            const nextVal = nextCell ? String(nextCell.w || nextCell.v || '').trim() : '';
+            if (nextVal && !nextVal.includes('필수') && !nextVal.includes('작성') && !nextVal.includes('날짜')) {
+              // Valid name candidate (Korean/English letters and spaces, 2~15 chars)
+              if (/^[가-힣a-zA-Z\s]{2,15}$/.test(nextVal)) {
+                return nextVal;
               }
             }
           }

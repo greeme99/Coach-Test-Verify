@@ -21,15 +21,18 @@ class CoachingLogValidator {
       rowErrorMap.get(rowIndex).push({ code, message, fixGuide });
     };
 
-    // 1. Check Document-Level Applicant Name
-    if (!applicantName || !applicantName.trim()) {
+    // 1. Check Document-Level Applicant Name (tolerant of whitespace)
+    const cleanExtracted = (applicantName || '').replace(/\s+/g, '');
+    const cleanBaseline = (baseline.applicantName || '').replace(/\s+/g, '');
+
+    if (!cleanExtracted) {
       docErrorCount += 1;
       errors.push({
         code: 'CL-01',
         message: "상단 '응시자 명(필수작성)'이 누락되었습니다.",
         fixGuide: "엑셀 상단 A4/B4 셀에 응시자 성명을 반드시 기재하십시오. (오류 1건 산정)"
       });
-    } else if (baseline.applicantName && applicantName.trim() !== baseline.applicantName.trim()) {
+    } else if (cleanBaseline && cleanExtracted !== cleanBaseline) {
       warnings.push({
         code: 'CL-01-WARN',
         message: `엑셀의 응시자 명('${applicantName}')이 입력한 기준 정보('${baseline.applicantName}')와 다릅니다.`,
@@ -314,11 +317,20 @@ class MentorValidator {
       rowErrorMap.get(rowIndex).push({ code, message, fixGuide });
     };
 
-    if (!applicantName || !applicantName.trim()) {
+    const cleanExtracted = (applicantName || '').replace(/\s+/g, '');
+    const cleanBaseline = (baseline.applicantName || '').replace(/\s+/g, '');
+
+    if (!cleanExtracted) {
       warnings.push({
         code: 'MC-01',
         message: "멘토코칭 리스트 상단 '응시자 명'이 누락되었습니다.",
         fixGuide: "응시자 성명을 명확히 기재하십시오."
+      });
+    } else if (cleanBaseline && cleanExtracted !== cleanBaseline) {
+      warnings.push({
+        code: 'MC-01-WARN',
+        message: `멘토코칭 리스트의 응시자 명('${applicantName}')이 입력한 기준 정보('${baseline.applicantName}')와 다릅니다.`,
+        fixGuide: "응시자 성명이 본인의 공식 성명과 일치하는지 확인하십시오."
       });
     }
 
@@ -455,11 +467,20 @@ class CoachTheCoachValidator {
       rowErrorMap.get(rowIndex).push({ code, message, fixGuide });
     };
 
-    if (!applicantName || !applicantName.trim()) {
+    const cleanExtracted = (applicantName || '').replace(/\s+/g, '');
+    const cleanBaseline = (baseline.applicantName || '').replace(/\s+/g, '');
+
+    if (!cleanExtracted) {
       warnings.push({
         code: 'CC-01',
         message: "1:1 코치더코치 리스트 상단 '응시자 명'이 누락되었습니다.",
         fixGuide: "응시자 성명을 기재하십시오."
+      });
+    } else if (cleanBaseline && cleanExtracted !== cleanBaseline) {
+      warnings.push({
+        code: 'CC-01-WARN',
+        message: `1:1 코치더코치 리스트의 응시자 명('${applicantName}')이 입력한 기준 정보('${baseline.applicantName}')와 다릅니다.`,
+        fixGuide: "응시자 성명이 본인의 공식 성명과 일치하는지 확인하십시오."
       });
     }
 
