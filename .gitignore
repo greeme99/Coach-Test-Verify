@@ -1,0 +1,14 @@
+# Temporary and lock files
+~$*.xlsx
+~$*.xls
+*.tmp
+*.log
+
+# Scratch and intermediate files
+scratch/
+node_modules/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini

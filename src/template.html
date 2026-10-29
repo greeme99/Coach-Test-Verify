@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KPC 자격인증 서류 사전 검증 시스템 (KCA 공식 규정 검증기)</title>
+  <style>
+    /* INLINE_CSS */
+  </style>
+</head>
+<body>
+
+  <!-- 1. Header -->
+  <header>
+    <div class="container header-inner">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <!-- INLINE_LOGO_ICON -->
+        </div>
+        <div class="logo-title">
+          <h1>KPC 자격인증 서류 사전 검증 시스템</h1>
+          <div class="logo-sub">한국코치협회 공식 서식 심사 기준 준수 (인증_1_43_v6 / 인증_1_47_v5 / 인증_1_48_v5)</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="badge-tag privacy">
+          <!-- INLINE_SHIELD_ICON -->
+          <span>100% 로컬 브라우저 처리 (개인정보 외부전송 0건)</span>
+        </div>
+        <div class="theme-selector">
+          <button type="button" class="theme-btn active" data-theme="light">라이트</button>
+          <button type="button" class="theme-btn" data-theme="dark">다크</button>
+          <button type="button" class="theme-btn" data-theme="green">그레이-그린</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- 2. Baseline Information Form Card -->
+    <section class="section-block">
+      <div class="card">
+        <div class="card-title">
+          <span>1. 응시 기준 정보 설정</span>
+          <span style="font-size: 0.78rem; font-weight: 500; color: var(--text-muted);">* 입력한 기준일에 따라 자격 효력 및 선행 교육을 정밀 판정합니다.</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="applicant-name">응시자 성명</label>
+            <input type="text" id="applicant-name" class="form-input" placeholder="예: 홍길동">
+          </div>
+          <div class="form-group">
+            <label class="form-label">응시 트랙 (유형)</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="exam-type" value="STANDARD" checked> 일반 응시 (멘토 5h/60일, CTC 5h)
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="exam-type" value="PORTFOLIO"> 포트폴리오 (멘토 10h/90일, CTC 8h)
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="kac-cert-date">KAC 자격 취득일</label>
+            <input type="date" id="kac-cert-date" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edu-start-date">코칭 기초/인증 교육 시작일</label>
+            <input type="date" id="edu-start-date" class="form-input">
+          </div>
+        </div>
+
+        <!-- Optional Education Schedules -->
+        <div class="edu-schedule-box">
+          <div style="font-size: 0.82rem; font-weight: 600; margin-bottom: 6px;">
+            [선택] 코칭 교육 일정 등록 (교육 시간 중 실시한 실습 검증용)
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <input type="date" id="new-edu-date" class="form-input" style="padding: 4px 8px; font-size: 0.8rem;">
+            <input type="time" id="new-edu-start" class="form-input" style="padding: 4px 8px; font-size: 0.8rem;" value="09:00">
+            <span>~</span>
+            <input type="time" id="new-edu-end" class="form-input" style="padding: 4px 8px; font-size: 0.8rem;" value="18:00">
+            <button type="button" id="add-edu-btn" class="btn-sm">+ 일정 추가</button>
+          </div>
+          <div id="edu-schedule-list" class="edu-list">
+            <span style="font-size: 0.75rem; color: var(--text-muted);">등록된 코칭 교육 일정이 없습니다.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Smart 3-Slots File Upload Section -->
+    <section class="section-block upload-section">
+      <div class="card">
+        <div class="card-title">
+          <span>2. 자격 심사 서류 업로드 (엑셀 파일 3종)</span>
+          <span style="font-size: 0.78rem; font-weight: 500; color: var(--primary);">★ 3개 파일을 한 번에 아무 슬롯에나 드래그하면 자동 분류됩니다.</span>
+        </div>
+        <div class="upload-grid">
+          <!-- Slot 1: Coaching Log -->
+          <div class="upload-slot" id="slot-clog">
+            <input type="file" id="file-clog" class="file-input-hidden" accept=".xlsx,.xls,.csv">
+            <div class="slot-icon"><!-- INLINE_UPLOAD_ICON --></div>
+            <div class="slot-title">1. 코칭일지 (.xlsx)</div>
+            <div class="slot-desc">인증_1_43_v6 양식 (총 200시간, 유료 40시간 이상)</div>
+            <div class="slot-status">클릭하거나 파일을 끌어다 놓으세요</div>
+          </div>
+
+          <!-- Slot 2: Mentor Coaching -->
+          <div class="upload-slot" id="slot-ment">
+            <input type="file" id="file-ment" class="file-input-hidden" accept=".xlsx,.xls,.csv">
+            <div class="slot-icon"><!-- INLINE_UPLOAD_ICON --></div>
+            <div class="slot-title">4. 멘토코칭 리스트 (.xlsx)</div>
+            <div class="slot-desc">인증_1_47_v5 양식 (60일/90일 이상, 의무시간)</div>
+            <div class="slot-status">클릭하거나 파일을 끌어다 놓으세요</div>
+          </div>
+
+          <!-- Slot 3: Coach-the-Coach -->
+          <div class="upload-slot" id="slot-cctc">
+            <input type="file" id="file-cctc" class="file-input-hidden" accept=".xlsx,.xls,.csv">
+            <div class="slot-icon"><!-- INLINE_UPLOAD_ICON --></div>
+            <div class="slot-title">5. 1:1 코치더코치 리스트 (.xlsx)</div>
+            <div class="slot-desc">인증_48_v5 양식 (KAC 이후 5시간/8시간 필수)</div>
+            <div class="slot-status">클릭하거나 파일을 끌어다 놓으세요</div>
+          </div>
+        </div>
+        <div class="master-drop-hint">
+          * 파일 내 개인정보 및 코칭 일시는 외부 서버로 전송되지 않고 사용자 브라우저 메모리 안에서만 안전하게 분석됩니다.
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Overall Scoreboard & Metrics -->
+    <section class="section-block">
+      <div id="dashboard-banner" class="dashboard-banner idle">
+        <div class="banner-left">
+          <div id="banner-icon" class="banner-icon"><!-- INLINE_INFO_ICON --></div>
+          <div>
+            <div id="banner-status-text" class="banner-status-text">서류 파일을 업로드해 주세요</div>
+            <div id="banner-desc" class="banner-desc">3종 엑셀 서류를 업로드하면 자동으로 정합성 및 심사 기준 검증을 시작합니다.</div>
+          </div>
+        </div>
+        <div class="disclaimer-pill">
+          ※ 본 진단 결과는 협회 서식을 기준으로 한 사전 시뮬레이션이며 협회 공식 심사 결과를 대체하지 않습니다.
+        </div>
+      </div>
+
+      <!-- 4-Cards Grid -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div>
+            <div class="metric-header">
+              <span>코칭일지 유효 시간</span>
+              <span style="color: var(--primary);">기준 200h</span>
+            </div>
+            <div id="metric-clog-hours" class="metric-value">-</div>
+          </div>
+          <div>
+            <div id="metric-clog-sub" class="metric-sub">파일 미등록 (200h / 유료 40h)</div>
+            <div class="progress-bar-wrap">
+              <div id="metric-clog-bar" class="progress-bar-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div>
+            <div class="metric-header">
+              <span>코칭일지 작성 오류 건수</span>
+              <span style="color: var(--danger-badge);">최대 10건 허용</span>
+            </div>
+            <div id="metric-err-count" class="metric-value">-</div>
+          </div>
+          <div>
+            <div id="metric-err-sub" class="metric-sub">10건 초과 시 서류 탈락</div>
+            <div class="progress-bar-wrap">
+              <div id="metric-err-bar" class="progress-bar-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div>
+            <div class="metric-header">
+              <span>멘토코칭 충족도</span>
+              <span style="color: var(--primary);">5h / 60일 이상</span>
+            </div>
+            <div id="metric-ment-hours" class="metric-value">-</div>
+          </div>
+          <div>
+            <div id="metric-ment-sub" class="metric-sub">파일 미등록</div>
+            <div class="progress-bar-wrap">
+              <div id="metric-ment-bar" class="progress-bar-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div>
+            <div class="metric-header">
+              <span>1:1 코치더코치 충족도</span>
+              <span style="color: var(--primary);">의무 5시간</span>
+            </div>
+            <div id="metric-cctc-hours" class="metric-value">-</div>
+          </div>
+          <div>
+            <div id="metric-cctc-sub" class="metric-sub">파일 미등록</div>
+            <div class="progress-bar-wrap">
+              <div id="metric-cctc-bar" class="progress-bar-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Detailed Inspection Tabs -->
+    <section class="section-block">
+      <div class="card">
+        <div class="tab-nav">
+          <button type="button" class="tab-btn active" data-tab="clog">
+            <span>코칭일지 검증</span>
+            <span id="badge-tab-clog" class="tab-badge">0건</span>
+          </button>
+          <button type="button" class="tab-btn" data-tab="ment">
+            <span>멘토코칭 검증</span>
+            <span id="badge-tab-ment" class="tab-badge">0건</span>
+          </button>
+          <button type="button" class="tab-btn" data-tab="cctc">
+            <span>1:1 코치더코치 검증</span>
+            <span id="badge-tab-cctc" class="tab-badge">0건</span>
+          </button>
+          <button type="button" class="tab-btn" data-tab="cross">
+            <span>통합 타임라인 & 교차 중복</span>
+            <span id="badge-tab-cross" class="tab-badge">0건</span>
+          </button>
+        </div>
+
+        <div class="table-toolbar">
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; cursor: pointer;">
+            <input type="checkbox" id="filter-error-checkbox">
+            <span>오류 및 미인정 행만 모아보기</span>
+          </label>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">* 오류 행은 해당 세션 시간 전체가 유효 합계에서 100% 제외됩니다.</span>
+        </div>
+
+        <div id="tab-content-container">
+          <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+            상단에서 엑셀 서류를 업로드하시면 상세 검증 및 수정 가이드 내역이 이곳에 표시됩니다.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Action & Report Bar -->
+    <section class="section-block" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+      <div style="display: flex; gap: 10px;">
+        <button type="button" id="btn-print-report" class="btn-primary">
+          <!-- INLINE_PRINTER_ICON -->
+          <span>진단 리포트 인쇄 / PDF 저장</span>
+        </button>
+        <button type="button" id="btn-copy-guide" class="btn-outline">
+          <!-- INLINE_COPY_ICON -->
+          <span>수정 조치 가이드 복사 (Markdown)</span>
+        </button>
+      </div>
+      <div>
+        <button type="button" id="btn-reset-all" class="btn-outline" style="color: var(--danger-text);">
+          <!-- INLINE_TRASH_ICON -->
+          <span>전체 데이터 초기화</span>
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Scripts -->
+  <script>
+    /* INLINE_SHEETJS */
+  </script>
+  <script>
+    /* INLINE_ICONS_JS */
+    /* INLINE_MODELS_JS */
+    /* INLINE_PARSER_JS */
+    /* INLINE_VALIDATOR_JS */
+    /* INLINE_APP_JS */
+  </script>
+</body>
+</html>
+
