@@ -803,8 +803,23 @@ table.data-table tr.row-warning {
     <section class="section-block">
       <div class="card">
         <div class="card-title">
-          <span>1. 응시 기준 정보 설정</span>
-          <span style="font-size: 0.78rem; font-weight: 500; color: var(--text-muted);">* 입력한 기준일에 따라 자격 효력 및 선행 교육을 정밀 판정합니다.</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span>1. 응시 기준 정보 설정</span>
+            <span id="baseline-saved-pill" class="badge-tag" style="display: none; background-color: var(--success-bg); color: var(--success-text); border-color: var(--success-border);">✓ 저장됨</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button type="button" id="btn-save-baseline" class="btn-sm" style="display: inline-flex; align-items: center; gap: 4px; font-weight: 600; color: var(--primary); border-color: var(--primary); background: var(--bg-card); cursor: pointer;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span>기준정보 저장</span>
+            </button>
+            <button type="button" id="btn-reset-baseline" class="btn-sm danger" style="display: inline-flex; align-items: center; gap: 4px; cursor: pointer;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+              <span>입력 리셋</span>
+            </button>
+          </div>
+        </div>
+        <div style="font-size: 0.78rem; font-weight: 500; color: var(--text-muted); margin-top: -8px; margin-bottom: 16px;">
+          * 입력한 기준일에 따라 자격 효력 및 선행 교육을 정밀 판정합니다. [기준정보 저장] 시 브라우저에 보관되어 다음 접속 시에도 자동 유지됩니다.
         </div>
         <div class="form-grid">
           <div class="form-group">
@@ -827,8 +842,8 @@ table.data-table tr.row-warning {
             <input type="date" id="kac-cert-date" class="form-input">
           </div>
           <div class="form-group">
-            <label class="form-label" for="edu-start-date">코칭 기초/인증 교육 시작일</label>
-            <input type="date" id="edu-start-date" class="form-input">
+            <label class="form-label" for="edu-basic-date">코칭 기초(Basic) 교육완료일</label>
+            <input type="date" id="edu-basic-date" class="form-input">
           </div>
         </div>
 
@@ -1076,7 +1091,9 @@ const ICONS = {
   printer: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>`,
   copy: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
   trash: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
-  plus: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`
+  plus: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  save: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
+  rotateCcw: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`
 };
 
 function getIcon(name) {
@@ -1414,10 +1431,11 @@ class CoachingLogValidator {
         addRowError(rowIndex, 'CL-02-DATE', `날짜 형식이 올바르지 않습니다: '${dateStr}'`, "날짜는 'YYYY-MM-DD' 형식으로 작성해야 합니다.");
       }
 
-      // Check Education Start Date Precedence
-      if (normDate && baseline.coachingEduStartDate) {
-        if (compareDates(normDate, baseline.coachingEduStartDate) < 0) {
-          addRowError(rowIndex, 'CL-05', `코칭 교육 시작일(${baseline.coachingEduStartDate}) 이전 실습입니다.`, "코칭 교육 등록 이후에 진행한 실습만 인정됩니다.");
+      // Check Coaching Basic Education Completion Date Precedence
+      const eduDate = baseline.coachingBasicEduDate || baseline.coachingEduStartDate;
+      if (normDate && eduDate) {
+        if (compareDates(normDate, eduDate) < 0) {
+          addRowError(rowIndex, 'CL-05', `코칭 기초(Basic) 교육완료일(${eduDate}) 이전 실습입니다.`, "코칭 기초(Basic) 교육 완료 이후에 진행한 실습만 인정됩니다.");
         }
       }
 
@@ -2063,7 +2081,8 @@ const state = {
     applicantName: '',
     examType: 'STANDARD', // 'STANDARD' | 'PORTFOLIO'
     kacCertDate: '',
-    coachingEduStartDate: '',
+    coachingBasicEduDate: '', // 코칭 기초(Basic) 교육완료일
+    coachingEduStartDate: '', // 하위 호환
     educationSchedules: []
   },
   files: {
@@ -2090,6 +2109,7 @@ const state = {
 // Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
+  loadSavedBaseline();
   bindFormEvents();
   bindUploadEvents();
   bindTabEvents();
@@ -2120,12 +2140,136 @@ function setTheme(theme) {
   });
 }
 
+// Baseline Storage Key
+const BASELINE_STORAGE_KEY = 'kpc_verifier_baseline';
+
+// Load Saved Baseline from localStorage
+function loadSavedBaseline() {
+  try {
+    const raw = localStorage.getItem(BASELINE_STORAGE_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    if (!saved || typeof saved !== 'object') return;
+
+    if (saved.applicantName) state.baseline.applicantName = saved.applicantName;
+    if (saved.examType) state.baseline.examType = saved.examType;
+    if (saved.kacCertDate) state.baseline.kacCertDate = saved.kacCertDate;
+    
+    const eduDate = saved.coachingBasicEduDate || saved.coachingEduStartDate || '';
+    state.baseline.coachingBasicEduDate = eduDate;
+    state.baseline.coachingEduStartDate = eduDate;
+
+    if (Array.isArray(saved.educationSchedules)) {
+      state.baseline.educationSchedules = saved.educationSchedules;
+    }
+
+    // Populate inputs
+    const nameInput = document.getElementById('applicant-name');
+    if (nameInput) nameInput.value = state.baseline.applicantName;
+
+    const radio = document.querySelector(`input[name="exam-type"][value="${state.baseline.examType}"]`);
+    if (radio) radio.checked = true;
+
+    const kacDateInput = document.getElementById('kac-cert-date');
+    if (kacDateInput) kacDateInput.value = state.baseline.kacCertDate;
+
+    const eduBasicInput = document.getElementById('edu-basic-date') || document.getElementById('edu-start-date');
+    if (eduBasicInput) eduBasicInput.value = eduDate;
+
+    renderEduScheduleList();
+    showSavedPill('✓ 저장된 기준정보 로드됨');
+  } catch (err) {
+    console.warn('Failed to load baseline from localStorage:', err);
+  }
+}
+
+// Save Baseline to localStorage
+function saveBaseline(showFeedback = true) {
+  // Sync current form input values to state.baseline
+  const nameInput = document.getElementById('applicant-name');
+  if (nameInput) state.baseline.applicantName = nameInput.value.trim();
+
+  const checkedRadio = document.querySelector('input[name="exam-type"]:checked');
+  if (checkedRadio) state.baseline.examType = checkedRadio.value;
+
+  const kacDateInput = document.getElementById('kac-cert-date');
+  if (kacDateInput) state.baseline.kacCertDate = kacDateInput.value;
+
+  const eduBasicInput = document.getElementById('edu-basic-date') || document.getElementById('edu-start-date');
+  if (eduBasicInput) {
+    state.baseline.coachingBasicEduDate = eduBasicInput.value;
+    state.baseline.coachingEduStartDate = eduBasicInput.value;
+  }
+
+  try {
+    localStorage.setItem(BASELINE_STORAGE_KEY, JSON.stringify(state.baseline));
+    showSavedPill('✓ 기준정보 저장 완료');
+    if (showFeedback) {
+      alert('응시 기준정보가 브라우저에 안전하게 저장되었습니다.\n(다음 접속 시에도 자동으로 유지됩니다.)');
+    }
+  } catch (err) {
+    console.error('Failed to save baseline:', err);
+    alert('기준정보 저장 중 오류가 발생했습니다.');
+  }
+}
+
+// Reset Baseline
+function resetBaseline() {
+  if (!confirm('입력된 응시 기준정보(성명, 트랙, KAC 취득일, 교육완료일 등)를 모두 초기화하시겠습니까?\n브라우저에 저장된 기준정보도 함께 삭제됩니다.')) {
+    return;
+  }
+
+  try {
+    localStorage.removeItem(BASELINE_STORAGE_KEY);
+  } catch (err) {
+    console.warn('Failed to remove baseline from localStorage:', err);
+  }
+
+  // Reset state
+  state.baseline.applicantName = '';
+  state.baseline.examType = 'STANDARD';
+  state.baseline.kacCertDate = '';
+  state.baseline.coachingBasicEduDate = '';
+  state.baseline.coachingEduStartDate = '';
+  state.baseline.educationSchedules = [];
+
+  // Reset form elements
+  const nameInput = document.getElementById('applicant-name');
+  if (nameInput) nameInput.value = '';
+
+  const standardRadio = document.querySelector('input[name="exam-type"][value="STANDARD"]');
+  if (standardRadio) standardRadio.checked = true;
+
+  const kacDateInput = document.getElementById('kac-cert-date');
+  if (kacDateInput) kacDateInput.value = '';
+
+  const eduBasicInput = document.getElementById('edu-basic-date') || document.getElementById('edu-start-date');
+  if (eduBasicInput) eduBasicInput.value = '';
+
+  renderEduScheduleList();
+  hideSavedPill();
+  runValidation();
+  alert('기준정보가 초기화되었습니다.');
+}
+
+function showSavedPill(text = '✓ 저장됨') {
+  const pill = document.getElementById('baseline-saved-pill');
+  if (!pill) return;
+  pill.textContent = text;
+  pill.style.display = 'inline-flex';
+}
+
+function hideSavedPill() {
+  const pill = document.getElementById('baseline-saved-pill');
+  if (pill) pill.style.display = 'none';
+}
+
 // Form Events
 function bindFormEvents() {
   const nameInput = document.getElementById('applicant-name');
   const typeRadios = document.querySelectorAll('input[name="exam-type"]');
   const kacDateInput = document.getElementById('kac-cert-date');
-  const eduStartDateInput = document.getElementById('edu-start-date');
+  const eduBasicDateInput = document.getElementById('edu-basic-date') || document.getElementById('edu-start-date');
 
   nameInput.addEventListener('input', (e) => {
     state.baseline.applicantName = e.target.value.trim();
@@ -2144,10 +2288,24 @@ function bindFormEvents() {
     runValidation();
   });
 
-  eduStartDateInput.addEventListener('change', (e) => {
-    state.baseline.coachingEduStartDate = e.target.value;
-    runValidation();
-  });
+  if (eduBasicDateInput) {
+    eduBasicDateInput.addEventListener('change', (e) => {
+      state.baseline.coachingBasicEduDate = e.target.value;
+      state.baseline.coachingEduStartDate = e.target.value;
+      runValidation();
+    });
+  }
+
+  // Baseline Save & Reset Buttons
+  const saveBaselineBtn = document.getElementById('btn-save-baseline');
+  if (saveBaselineBtn) {
+    saveBaselineBtn.addEventListener('click', () => saveBaseline(true));
+  }
+
+  const resetBaselineBtn = document.getElementById('btn-reset-baseline');
+  if (resetBaselineBtn) {
+    resetBaselineBtn.addEventListener('click', resetBaseline);
+  }
 
   // Education Schedules
   const addEduBtn = document.getElementById('add-edu-btn');

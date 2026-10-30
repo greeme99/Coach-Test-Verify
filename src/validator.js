@@ -60,10 +60,11 @@ class CoachingLogValidator {
         addRowError(rowIndex, 'CL-02-DATE', `날짜 형식이 올바르지 않습니다: '${dateStr}'`, "날짜는 'YYYY-MM-DD' 형식으로 작성해야 합니다.");
       }
 
-      // Check Education Start Date Precedence
-      if (normDate && baseline.coachingEduStartDate) {
-        if (compareDates(normDate, baseline.coachingEduStartDate) < 0) {
-          addRowError(rowIndex, 'CL-05', `코칭 교육 시작일(${baseline.coachingEduStartDate}) 이전 실습입니다.`, "코칭 교육 등록 이후에 진행한 실습만 인정됩니다.");
+      // Check Coaching Basic Education Completion Date Precedence
+      const eduDate = baseline.coachingBasicEduDate || baseline.coachingEduStartDate;
+      if (normDate && eduDate) {
+        if (compareDates(normDate, eduDate) < 0) {
+          addRowError(rowIndex, 'CL-05', `코칭 기초(Basic) 교육완료일(${eduDate}) 이전 실습입니다.`, "코칭 기초(Basic) 교육 완료 이후에 진행한 실습만 인정됩니다.");
         }
       }
 

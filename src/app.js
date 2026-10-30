@@ -8,7 +8,8 @@ const state = {
     applicantName: '',
     examType: 'STANDARD', // 'STANDARD' | 'PORTFOLIO'
     kacCertDate: '',
-    coachingEduStartDate: '',
+    coachingBasicEduDate: '', // 코칭 기초(Basic) 교육완료일
+    coachingEduStartDate: '', // 하위 호환
     educationSchedules: []
   },
   files: {
@@ -35,6 +36,7 @@ const state = {
 // Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
+  loadSavedBaseline();
   bindFormEvents();
   bindUploadEvents();
   bindTabEvents();
@@ -65,12 +67,136 @@ function setTheme(theme) {
   });
 }
 
+// Baseline Storage Key
+const BASELINE_STORAGE_KEY = 'kpc_verifier_baseline';
+
+// Load Saved Baseline from localStorage
+function loadSavedBaseline() {
+  try {
+    const raw = localStorage.getItem(BASELINE_STORAGE_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    if (!saved || typeof saved !== 'object') return;
+
+    if (saved.applicantName) state.baseline.applicantName = saved.applicantName;
+    if (saved.examType) state.baseline.examType = saved.examType;
+    if (saved.kacCertDate) state.baseline.kacCertDate = saved.kacCertDate;
+    
+    const eduDate = saved.coachingBasicEduDate || saved.coachingEduStartDate || '';
+    state.baseline.coachingBasicEduDate = eduDate;
+    state.baseline.coachingEduStartDate = eduDate;
+
+    if (Array.isArray(saved.educationSchedules)) {
+      state.baseline.educationSchedules = saved.educationSchedules;
+    }
+
+    // Populate inputs
+    const nameInput = document.getElementById('applicant-name');
+    if (nameInput) nameInput.value = state.baseline.applicantName;
+
+    const radio = document.querySelector(`input[name="exam-type"][value="${state.baseline.examType}"]`);
+    if (radio) radio.checked = true;
+
+    const kacDateInput = document.getElementById('kac-cert-date');
+    if (kacDateInput) kacDateInput.value = state.baseline.kacCertDate;
+
+    const eduBasicInput = document.getElementById('edu-basic-date') || document.getElementById('edu-start-date');
+    if (eduBasicInput) eduBasicInput.value = eduDate;
+
+    renderEduScheduleList();
+    showSavedPill('✓ 저장된 기준정보 로드됨');
+  } catch (err) {
+    console.warn('Failed to load baseline from localStorage:', err);
+  }
+}
+
+// Save Baseline to localStorage
+function saveBaseline(showFeedback = true) {
+  // Sync current form input values to state.baseline
+  const nameInput = document.getElementById('applicant-name');
+  if (nameInput) state.baseline.applicantName = nameInput.value.trim();
+
+  const checkedRadio = document.querySelector('input[name="exam-type"]:checked');
+  if (checkedRadio) state.baseline.examType = checkedRadio.value;
+
+  const kacDateInput = document.getElementById('kac-cert-date');
+  if (kacDateInput) state.baseline.kacCertDate = kacDateInput.value;
+
+  const eduBasicInput = document.getElementById('edu-basic-date') || document.getElementById('edu-start-date');
+  if (eduBasicInput) {
+    state.baseline.coachingBasicEduDate = eduBasicInput.value;
+    state.baseline.coachingEduStartDate = eduBasicInput.value;
+  }
+
+  try {
+    localStorage.setItem(BASELINE_STORAGE_KEY, JSON.stringify(state.baseline));
+    showSavedPill('✓ 기준정보 저장 완료');
+    if (showFeedback) {
+      alert('응시 기준정보가 브라우저에 안전하게 저장되었습니다.\n(다음 접속 시에도 자동으로 유지됩니다.)');
+    }
+  } catch (err) {
+    console.error('Failed to save baseline:', err);
+    alert('기준정보 저장 중 오류가 발생했습니다.');
+  }
+}
+
+// Reset Baseline
+function resetBaseline() {
+  if (!confirm('입력된 응시 기준정보(성명, 트랙, KAC 취득일, 교육완료일 등)를 모두 초기화하시겠습니까?\n브라우저에 저장된 기준정보도 함께 삭제됩니다.')) {
+    return;
+  }
+
+  try {
+    localStorage.removeItem(BASELINE_STORAGE_KEY);
+  } catch (err) {
+    console.warn('Failed to remove baseline from localStorage:', err);
+  }
+
+  // Reset state
+  state.baseline.applicantName = '';
+  state.baseline.examType = 'STANDARD';
+  state.baseline.kacCertDate = '';
+  state.baseline.coachingBasicEduDate = '';
+  state.baseline.coachingEduStartDate = '';
+  state.baseline.educationSchedules = [];
+
+  // Reset form elements
+  const nameInput = document.getElementById('applicant-name');
+  if (nameInput) nameInput.value = '';
+
+  const standardRadio = document.querySelector('input[name="exam-type"][value="STANDARD"]');
+  if (standardRadio) standardRadio.checked = true;
+
+  const kacDateInput = document.getElementById('kac-cert-date');
+  if (kacDateInput) kacDateInput.value = '';
+
+  const eduBasicInput = document.getElementById('edu-basic-date') || document.getElementById('edu-start-date');
+  if (eduBasicInput) eduBasicInput.value = '';
+
+  renderEduScheduleList();
+  hideSavedPill();
+  runValidation();
+  alert('기준정보가 초기화되었습니다.');
+}
+
+function showSavedPill(text = '✓ 저장됨') {
+  const pill = document.getElementById('baseline-saved-pill');
+  if (!pill) return;
+  pill.textContent = text;
+  pill.style.display = 'inline-flex';
+}
+
+function hideSavedPill() {
+  const pill = document.getElementById('baseline-saved-pill');
+  if (pill) pill.style.display = 'none';
+}
+
 // Form Events
 function bindFormEvents() {
   const nameInput = document.getElementById('applicant-name');
   const typeRadios = document.querySelectorAll('input[name="exam-type"]');
   const kacDateInput = document.getElementById('kac-cert-date');
-  const eduStartDateInput = document.getElementById('edu-start-date');
+  const eduBasicDateInput = document.getElementById('edu-basic-date') || document.getElementById('edu-start-date');
 
   nameInput.addEventListener('input', (e) => {
     state.baseline.applicantName = e.target.value.trim();
@@ -89,10 +215,24 @@ function bindFormEvents() {
     runValidation();
   });
 
-  eduStartDateInput.addEventListener('change', (e) => {
-    state.baseline.coachingEduStartDate = e.target.value;
-    runValidation();
-  });
+  if (eduBasicDateInput) {
+    eduBasicDateInput.addEventListener('change', (e) => {
+      state.baseline.coachingBasicEduDate = e.target.value;
+      state.baseline.coachingEduStartDate = e.target.value;
+      runValidation();
+    });
+  }
+
+  // Baseline Save & Reset Buttons
+  const saveBaselineBtn = document.getElementById('btn-save-baseline');
+  if (saveBaselineBtn) {
+    saveBaselineBtn.addEventListener('click', () => saveBaseline(true));
+  }
+
+  const resetBaselineBtn = document.getElementById('btn-reset-baseline');
+  if (resetBaselineBtn) {
+    resetBaselineBtn.addEventListener('click', resetBaseline);
+  }
 
   // Education Schedules
   const addEduBtn = document.getElementById('add-edu-btn');

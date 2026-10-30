@@ -42,8 +42,23 @@
     <section class="section-block">
       <div class="card">
         <div class="card-title">
-          <span>1. 응시 기준 정보 설정</span>
-          <span style="font-size: 0.78rem; font-weight: 500; color: var(--text-muted);">* 입력한 기준일에 따라 자격 효력 및 선행 교육을 정밀 판정합니다.</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span>1. 응시 기준 정보 설정</span>
+            <span id="baseline-saved-pill" class="badge-tag" style="display: none; background-color: var(--success-bg); color: var(--success-text); border-color: var(--success-border);">✓ 저장됨</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button type="button" id="btn-save-baseline" class="btn-sm" style="display: inline-flex; align-items: center; gap: 4px; font-weight: 600; color: var(--primary); border-color: var(--primary); background: var(--bg-card); cursor: pointer;">
+              <!-- INLINE_SAVE_ICON -->
+              <span>기준정보 저장</span>
+            </button>
+            <button type="button" id="btn-reset-baseline" class="btn-sm danger" style="display: inline-flex; align-items: center; gap: 4px; cursor: pointer;">
+              <!-- INLINE_ROTATE_ICON -->
+              <span>입력 리셋</span>
+            </button>
+          </div>
+        </div>
+        <div style="font-size: 0.78rem; font-weight: 500; color: var(--text-muted); margin-top: -8px; margin-bottom: 16px;">
+          * 입력한 기준일에 따라 자격 효력 및 선행 교육을 정밀 판정합니다. [기준정보 저장] 시 브라우저에 보관되어 다음 접속 시에도 자동 유지됩니다.
         </div>
         <div class="form-grid">
           <div class="form-group">
@@ -66,8 +81,8 @@
             <input type="date" id="kac-cert-date" class="form-input">
           </div>
           <div class="form-group">
-            <label class="form-label" for="edu-start-date">코칭 기초/인증 교육 시작일</label>
-            <input type="date" id="edu-start-date" class="form-input">
+            <label class="form-label" for="edu-basic-date">코칭 기초(Basic) 교육완료일</label>
+            <input type="date" id="edu-basic-date" class="form-input">
           </div>
         </div>
 

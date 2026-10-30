@@ -53,6 +53,8 @@ def build_single_html():
     html = html.replace("<!-- INLINE_PRINTER_ICON -->", icon_map.get("printer", ""))
     html = html.replace("<!-- INLINE_COPY_ICON -->", icon_map.get("copy", ""))
     html = html.replace("<!-- INLINE_TRASH_ICON -->", icon_map.get("trash", ""))
+    html = html.replace("<!-- INLINE_SAVE_ICON -->", icon_map.get("save", ""))
+    html = html.replace("<!-- INLINE_ROTATE_ICON -->", icon_map.get("rotateCcw", ""))
 
     print("[4/5] Injecting JavaScript modules...")
     html = html.replace("/* INLINE_ICONS_JS */", icons_js)

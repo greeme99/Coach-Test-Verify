@@ -37,12 +37,13 @@ const baseline = {
   applicantName: '가상응시자A',
   examType: 'STANDARD',
   kacCertDate: '2023-01-15',
+  coachingBasicEduDate: '2022-09-01',
   coachingEduStartDate: '2022-09-01',
   educationSchedules: [
     { date: '2022-09-05', startTime: '09:00', endTime: '18:00' }
   ]
 };
-assert('TC-BASE-01', baseline.applicantName === '가상응시자A' && baseline.kacCertDate === '2023-01-15', '기준 정보 폼 객체 정상 바인딩');
+assert('TC-BASE-01', baseline.applicantName === '가상응시자A' && baseline.coachingBasicEduDate === '2022-09-01' && baseline.kacCertDate === '2023-01-15', '기준 정보 폼 객체 정상 바인딩');
 
 // TC-BASE-02: 3종 파일 자동 분류
 const wbClog = XLSX.read(fs.readFileSync('Ref.Doc/1.코칭일지(KPC)_인증_1_43_v6.xlsx'), { type: 'buffer' });
