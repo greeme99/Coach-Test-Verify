@@ -146,6 +146,53 @@
       </div>
     </section>
 
+    <!-- 3-B. Overall Checklist & Verification Screen -->
+    <section class="section-block checklist-section" id="checklist-section">
+      <div class="card">
+        <div class="card-title checklist-header">
+          <div class="checklist-header-left">
+            <span class="checklist-icon-wrap"><!-- INLINE_LIST_CHECK_ICON --></span>
+            <span class="checklist-title-text">KPC 서류 심사 필수 점검 체크리스트 (Check-List)</span>
+            <span id="checklist-summary-badge" class="checklist-badge waiting">서류 업로드 대기중</span>
+          </div>
+          <div class="checklist-header-actions">
+            <button type="button" id="btn-toggle-checklist" class="btn-sm btn-outline">
+              <span id="btn-toggle-icon"><!-- INLINE_CHEVRON_DOWN_ICON --></span>
+              <span id="btn-toggle-text">체크리스트 접기</span>
+            </button>
+            <button type="button" id="btn-run-check" class="btn-sm btn-primary">
+              <!-- INLINE_PLAY_CHECK_ICON -->
+              <span>점검 결과 확인</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="checklist-body" class="checklist-body">
+          <p class="checklist-notice">
+            * 한국코치협회 공식 서식 및 <code>KPC 준비사항 체크리스트.xlsx</code> 규정에 따른 전수 점검 목록입니다.
+            서류 업로드 전에는 점검 항목 기준이 안내되며, 3종 서류 업로드 완료 시 각 항목별 충족 여부와 상세 진단 결과가 실시간 표시됩니다.
+          </p>
+
+          <div class="table-responsive" style="margin-top: 12px;">
+            <table class="data-table checklist-table" id="checklist-table">
+              <thead>
+                <tr>
+                  <th style="width: 130px;">구분</th>
+                  <th style="width: 230px;">점검 항목</th>
+                  <th>심사 기준 및 규정 요건</th>
+                  <th style="width: 250px;">현재 서류 상태 / 검증 결과</th>
+                  <th style="width: 110px; text-align: center;">판정</th>
+                </tr>
+              </thead>
+              <tbody id="checklist-tbody">
+                <!-- Dynamically populated by renderChecklist() in app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- 4. Overall Scoreboard & Metrics -->
     <section class="section-block">
       <div id="dashboard-banner" class="dashboard-banner idle">

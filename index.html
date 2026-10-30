@@ -709,6 +709,172 @@ table.data-table tr.row-warning {
   background: var(--danger-bg);
 }
 
+/* Checklist Section Styles */
+.checklist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.checklist-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.checklist-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  color: var(--primary);
+}
+
+.checklist-title-text {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-main);
+}
+
+.checklist-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.checklist-badge.waiting {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.checklist-badge.pass {
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+  color: var(--success-text);
+}
+
+.checklist-badge.warn {
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  color: var(--warning-text);
+}
+
+.checklist-badge.fail {
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  color: var(--danger-text);
+}
+
+.checklist-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checklist-body {
+  margin-top: 10px;
+  transition: all 0.25s ease;
+}
+
+.checklist-body.collapsed {
+  display: none;
+}
+
+.checklist-notice {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.checklist-table th, .checklist-table td {
+  padding: 9px 12px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  vertical-align: middle;
+}
+
+.checklist-cat-header td {
+  background-color: var(--bg-subtle);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  border-top: 2px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 12px;
+}
+
+.chk-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.chk-badge.waiting {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.chk-badge.pass {
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+  color: var(--success-text);
+}
+
+.chk-badge.warn {
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  color: var(--warning-text);
+}
+
+.chk-badge.fail {
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  color: var(--danger-text);
+}
+
+.chk-badge.na {
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  border: 1px dashed var(--border);
+}
+
+.checklist-val-text {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.checklist-val-detail {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.checklist-rule-desc {
+  color: var(--text-muted);
+  font-size: 0.79rem;
+}
+
+.chk-row-fail {
+  background-color: rgba(239, 68, 68, 0.04);
+}
+
+.chk-row-warn {
+  background-color: rgba(245, 158, 11, 0.04);
+}
+
 /* Responsive Media Queries */
 @media (max-width: 992px) {
   .upload-grid {
@@ -907,6 +1073,53 @@ table.data-table tr.row-warning {
       </div>
     </section>
 
+    <!-- 3-B. Overall Checklist & Verification Screen -->
+    <section class="section-block checklist-section" id="checklist-section">
+      <div class="card">
+        <div class="card-title checklist-header">
+          <div class="checklist-header-left">
+            <span class="checklist-icon-wrap"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+            <span class="checklist-title-text">KPC 서류 심사 필수 점검 체크리스트 (Check-List)</span>
+            <span id="checklist-summary-badge" class="checklist-badge waiting">서류 업로드 대기중</span>
+          </div>
+          <div class="checklist-header-actions">
+            <button type="button" id="btn-toggle-checklist" class="btn-sm btn-outline">
+              <span id="btn-toggle-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+              <span id="btn-toggle-text">체크리스트 접기</span>
+            </button>
+            <button type="button" id="btn-run-check" class="btn-sm btn-primary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span>점검 결과 확인</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="checklist-body" class="checklist-body">
+          <p class="checklist-notice">
+            * 한국코치협회 공식 서식 및 <code>KPC 준비사항 체크리스트.xlsx</code> 규정에 따른 전수 점검 목록입니다.
+            서류 업로드 전에는 점검 항목 기준이 안내되며, 3종 서류 업로드 완료 시 각 항목별 충족 여부와 상세 진단 결과가 실시간 표시됩니다.
+          </p>
+
+          <div class="table-responsive" style="margin-top: 12px;">
+            <table class="data-table checklist-table" id="checklist-table">
+              <thead>
+                <tr>
+                  <th style="width: 130px;">구분</th>
+                  <th style="width: 230px;">점검 항목</th>
+                  <th>심사 기준 및 규정 요건</th>
+                  <th style="width: 250px;">현재 서류 상태 / 검증 결과</th>
+                  <th style="width: 110px; text-align: center;">판정</th>
+                </tr>
+              </thead>
+              <tbody id="checklist-tbody">
+                <!-- Dynamically populated by renderChecklist() in app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- 4. Overall Scoreboard & Metrics -->
     <section class="section-block">
       <div id="dashboard-banner" class="dashboard-banner idle">
@@ -1093,7 +1306,11 @@ const ICONS = {
   trash: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
   plus: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
   save: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
-  rotateCcw: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`
+  rotateCcw: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`,
+  listCheck: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+  chevronDown: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`,
+  chevronUp: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>`,
+  playCheck: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`
 };
 
 function getIcon(name) {
@@ -2530,6 +2747,40 @@ function bindActionEvents() {
 
   document.getElementById('btn-copy-guide').addEventListener('click', copyFixGuideToClipboard);
   document.getElementById('btn-reset-all').addEventListener('click', resetAll);
+
+  const btnToggle = document.getElementById('btn-toggle-checklist');
+  const checklistBody = document.getElementById('checklist-body');
+  const toggleIcon = document.getElementById('btn-toggle-icon');
+  const toggleText = document.getElementById('btn-toggle-text');
+
+  if (btnToggle && checklistBody) {
+    btnToggle.addEventListener('click', () => {
+      const isCollapsed = checklistBody.classList.toggle('collapsed');
+      if (isCollapsed) {
+        if (toggleText) toggleText.innerText = '체크리스트 펼치기';
+        if (toggleIcon) toggleIcon.innerHTML = getIcon('chevronDown');
+      } else {
+        if (toggleText) toggleText.innerText = '체크리스트 접기';
+        if (toggleIcon) toggleIcon.innerHTML = getIcon('chevronUp');
+      }
+    });
+  }
+
+  const btnRunCheck = document.getElementById('btn-run-check');
+  if (btnRunCheck) {
+    btnRunCheck.addEventListener('click', () => {
+      const hasAny = state.files.COACHING_LOG || state.files.MENTOR_COACHING || state.files.COACH_THE_COACH;
+      if (!hasAny) {
+        alert('먼저 엑셀 서류 파일(코칭일지, 멘토코칭, 1:1 코치더코치)을 업로드해 주세요.');
+        const slotClog = document.getElementById('slot-clog');
+        if (slotClog) slotClog.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      runValidation();
+      const checklistSec = document.getElementById('checklist-section');
+      if (checklistSec) checklistSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
 }
 
 // Copy Actionable Fix Guide to Clipboard
@@ -2660,10 +2911,411 @@ function runValidation() {
 
 // Update Entire UI
 function updateUI() {
+  renderChecklist();
   renderScoreboardBanner();
   renderMetricCards();
   renderTabBadges();
   renderTabContent();
+}
+
+// Render Comprehensive KPC Verification Checklist
+function renderChecklist() {
+  const tbody = document.getElementById('checklist-tbody');
+  const summaryBadge = document.getElementById('checklist-summary-badge');
+  if (!tbody || !summaryBadge) return;
+
+  const { clog, ment, cctc, cross } = state.results;
+  const { baseline, files } = state;
+  const isPortfolio = baseline.examType === 'PORTFOLIO';
+  const hasFiles = !!(clog || ment || cctc || files.COACHING_LOG || files.MENTOR_COACHING || files.COACH_THE_COACH);
+
+  const categories = [
+    {
+      name: '1. 코칭일지 (총 200h, 유료 40h 필수)',
+      items: [
+        {
+          name: '총 코칭시간 200시간 이상',
+          rule: '총 유효 실습 시간 200.0시간 이상 기재 필수 (오류 제외 후 실 인정 시간 기준)',
+          eval: () => {
+            if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const h = (clog.finalTotalMinutes || 0) / 60;
+            if (clog.finalTotalMinutes >= 12000) {
+              return { status: 'PASS', value: `총 ${h.toFixed(1)}h 인정 (기준 충족)`, detail: `기준 200h 대비 +${(h - 200).toFixed(1)}h 초과 달성` };
+            } else {
+              return { status: 'FAIL', value: `총 ${h.toFixed(1)}h (부족)`, detail: `기준 200시간까지 ${(200 - h).toFixed(1)}시간 부족 (서류 탈락 사유)` };
+            }
+          }
+        },
+        {
+          name: '유료 코칭시간 40시간 이상',
+          rule: '유료 코칭 실습 시간 40.0시간(2,400분) 이상 필수 (미달 시 탈락)',
+          eval: () => {
+            if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const ph = (clog.totalPaidMinutes || 0) / 60;
+            if (clog.totalPaidMinutes >= 2400) {
+              return { status: 'PASS', value: `유료 ${ph.toFixed(1)}h 인정 (기준 충족)`, detail: `기준 40h 대비 +${(ph - 40).toFixed(1)}h 충족` };
+            } else {
+              return { status: 'FAIL', value: `유료 ${ph.toFixed(1)}h (부족)`, detail: `기준 40시간까지 ${(40 - ph).toFixed(1)}시간 부족 (서류 탈락 사유)` };
+            }
+          }
+        },
+        {
+          name: '코칭일지 작성 오류 10개 이하',
+          rule: '코칭일지 작성오류 10개 초과 시 탈락 (오류 건수는 전체 코칭시간에서 제외)',
+          eval: () => {
+            if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const ec = clog.errorCount || 0;
+            if (ec === 0) {
+              return { status: 'PASS', value: '작성 오류 0건 (완전 무결)', detail: '오류 10건 허용 기준 이내 준수' };
+            } else if (ec <= 10) {
+              return { status: 'WARN', value: `작성 오류 ${ec}건 발견 (시간 차감)`, detail: '10건 허용 기준 이내이나 오류 행 시간은 전액 차감됨' };
+            } else {
+              return { status: 'FAIL', value: `작성 오류 ${ec}건 (탈락 위험)`, detail: '허용치(최대 10개) 초과로 서류 심사 불합격 기준' };
+            }
+          }
+        },
+        {
+          name: '코칭 기초 교육완료일 이후 실습',
+          rule: '코칭 교육을 받으면서 시작한 실습만 인정 (기초 교육완료일 이전 실습은 오류 처리)',
+          eval: () => {
+            const eduDate = baseline.coachingBasicEduDate || baseline.coachingEduStartDate;
+            if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            if (!eduDate) return { status: 'WAITING', value: '기준일 미입력', detail: '상단에 코칭 기초 교육완료일을 입력해 주세요.' };
+            const beforeEdu = clog.rows.filter(r => r.errors && r.errors.some(e => e.code === 'CL-03-EDU'));
+            if (beforeEdu.length === 0) {
+              return { status: 'PASS', value: '교육완료일 이후 실습 정상', detail: `기초 교육완료일(${eduDate}) 이후 실습 준수` };
+            } else {
+              return { status: 'FAIL', value: `교육 이전 실습 ${beforeEdu.length}건 적발`, detail: `교육완료일(${eduDate}) 이전 실습은 오류 및 시간 제외` };
+            }
+          }
+        },
+        {
+          name: '날짜 및 시간순서 오름차순 정렬',
+          rule: '코칭일지 기재 날짜와 시작시간 오름차순 정렬 필수 (미정렬 시 작성 오류)',
+          eval: () => {
+            if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const orderErr = clog.rows.filter(r => r.errors && r.errors.some(e => e.code === 'CL-03-ORDER'));
+            if (orderErr.length === 0) {
+              return { status: 'PASS', value: '일자·시간 정렬 정상', detail: '전체 행이 날짜 및 시간순으로 바르게 정렬됨' };
+            } else {
+              return { status: 'FAIL', value: `정렬 역전 ${orderErr.length}건 발견`, detail: '날짜 또는 시작 시간 역전 행 발생 (수정 필요)' };
+            }
+          }
+        },
+        {
+          name: '코칭형태 인원수 기재 필수',
+          rule: "'1:1대면', '1:1비대면' 또는 그룹 인원수(예: 1:3대면) 명시 필수 (미기재 시 오류)",
+          eval: () => {
+            if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const fmtErr = clog.rows.filter(r => r.errors && r.errors.some(e => e.code && e.code.startsWith('CL-07')));
+            if (fmtErr.length === 0) {
+              return { status: 'PASS', value: '코칭형태 인원수 규격 준수', detail: '모든 행에 1:1/다자간 및 대면/비대면 인원수 정상 기재' };
+            } else {
+              return { status: 'FAIL', value: `인원수 미기재 ${fmtErr.length}건`, detail: '인원수 누락 또는 인정되지 않는 코칭형태 기재' };
+            }
+          }
+        },
+        {
+          name: '세션 인정 한도 및 1일 120분 한도',
+          rule: '회기당 30분~120분만 인정(미만/초과 시 오류), 동일 고객 하루 최대 120분 제한',
+          eval: () => {
+            if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const limitErr = clog.rows.filter(r => r.errors && r.errors.some(e => ['CL-04-DURATION', 'CL-05-DAILY', 'CL-09-COUNT', 'CL-09-HOURS'].includes(e.code)));
+            if (limitErr.length === 0) {
+              return { status: 'PASS', value: '세션 및 일일 한도 준수', detail: '회기당 30~120분 및 동일 고객 1일 120분 한도 전건 충족' };
+            } else {
+              return { status: 'WARN', value: `한도 초과/미달 ${limitErr.length}건`, detail: '30분 미만, 120분 초과 또는 일일 합산 초과 (0분 처리)' };
+            }
+          }
+        },
+        {
+          name: '받은 코치더코치 복합 산정 기준',
+          rule: '2배 가산값 기재, KAC 이전 KAC 코치 인정/이후 KPC·KSC 필수, 최대 80h 및 유료 25h 한도',
+          eval: () => {
+            if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const ctcErr = clog.rows.filter(r => r.errors && r.errors.some(e => e.code.includes('CTC')));
+            const ctcTotalH = ((clog.creditedCtcTotal || 0) / 60).toFixed(1);
+            if (ctcErr.length === 0) {
+              return { status: 'PASS', value: `인정 ${ctcTotalH}h (규정 준수)`, detail: '코치 자격 표기 및 시간 한도(최대 80h/25h) 규정 준수' };
+            } else {
+              return { status: 'WARN', value: `CTC 오류 ${ctcErr.length}건 발견`, detail: '상위코치 자격 표기 또는 시간 한도 초과 절사 적용' };
+            }
+          }
+        },
+        {
+          name: '고객 다변화 (5명 이상) 및 응시자명 기재',
+          rule: '최소 5명 이상의 다양한 고객 대상 코칭 필수, 상단 A4/B4 셀 응시자 성명 기재 필수',
+          eval: () => {
+            if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const clientCount = clog.clientCount || 0;
+            const hasName = !clog.errors.some(e => e.code === 'CL-01');
+            if (clientCount >= 5 && hasName) {
+              return { status: 'PASS', value: `고객 ${clientCount}명 확보 / 성명 기재 정상`, detail: '고객 다변화 기준(5명 이상) 및 응시자 성명 기재 완료' };
+            } else if (clientCount < 5) {
+              return { status: 'FAIL', value: `고객 ${clientCount}명 (최소 5명 미달)`, detail: '최소 5명 이상의 다양한 고객에게 코칭을 진행해야 합니다.' };
+            } else {
+              return { status: 'FAIL', value: '상단 응시자 성명 누락', detail: '엑셀 상단 A4/B4 셀에 응시자 성명을 반드시 기재하십시오.' };
+            }
+          }
+        }
+      ]
+    },
+    {
+      name: '2. 멘토코칭 리스트 (기간 및 의무시간 필수)',
+      items: [
+        {
+          name: '멘토코칭 진행 기간 준수',
+          rule: `시작일~종료일 기준 ${isPortfolio ? '포트폴리오 90일' : '일반 60일'} 이상 (부족 시 탈락)`,
+          eval: () => {
+            if (!ment) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const reqDays = ment.requiredSpanDays || (isPortfolio ? 90 : 60);
+            const days = ment.spanDays || 0;
+            if (days >= reqDays) {
+              return { status: 'PASS', value: `${days}일 진행 (기준 충족)`, detail: `의무 기간(${reqDays}일 이상) 대비 +${days - reqDays}일 충족` };
+            } else {
+              return { status: 'FAIL', value: `${days}일 진행 (기간 부족)`, detail: `의무 기간(${reqDays}일) 미달로 서류 심사 탈락 기준` };
+            }
+          }
+        },
+        {
+          name: '멘토코칭 의무 시간 및 회기 준수',
+          rule: `${isPortfolio ? '포트폴리오 10시간 이상' : '일반 5시간 5회기 이상'} (의무 미달 시 탈락)`,
+          eval: () => {
+            if (!ment) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const reqMin = ment.requiredMinutes || (isPortfolio ? 600 : 300);
+            const credMin = ment.creditedMinutesTotal || 0;
+            const h = (credMin / 60).toFixed(1);
+            const reqH = (reqMin / 60).toFixed(0);
+            const count = ment.validSessionCount || 0;
+            const hasHours = credMin >= reqMin;
+            const hasCount = isPortfolio ? true : count >= 5;
+            if (hasHours && hasCount) {
+              return { status: 'PASS', value: `총 ${h}h (${count}회기) 충족`, detail: `의무 시간(${reqH}h) 및 회기 기준 충족 완료` };
+            } else {
+              return { status: 'FAIL', value: `총 ${h}h (${count}회기)`, detail: `의무 요건(${reqH}시간${!isPortfolio ? ', 5회기' : ''}) 미달로 탈락 위험` };
+            }
+          }
+        },
+        {
+          name: '단일 세션 60분 초과분 절사 한도',
+          rule: '회기당 최대 60분까지만 인정 (60분 초과 세션은 60분으로 절사)',
+          eval: () => {
+            if (!ment) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const truncWarnings = ment.warnings.filter(w => w.code === 'MC-06-TRUNC');
+            if (truncWarnings.length === 0) {
+              return { status: 'PASS', value: '단일 세션 60분 이내 준수', detail: '초과 절사 대상 세션 없이 전건 규격 내 인정' };
+            } else {
+              return { status: 'WARN', value: `${truncWarnings.length}건 60분 상한 절사`, detail: '60분을 초과한 세션의 초과 시간이 60분으로 절사 적용됨' };
+            }
+          }
+        },
+        {
+          name: '멘토코치 자격 유효성 확인',
+          rule: '코칭 당시 멘토코치 KPC/KSC 자격 보유 및 유효 상태 확인 (만료/정지 시 탈락)',
+          eval: () => {
+            if (!ment) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const qualErr = ment.rows.filter(r => r.errors && r.errors.some(e => ['MC-07', 'MC-08'].includes(e.code)));
+            if (qualErr.length === 0) {
+              return { status: 'PASS', value: '멘토코치 자격 유효 확인', detail: '멘토코치 자격 등급(KPC/KSC) 및 유효 상태 정상' };
+            } else {
+              return { status: 'FAIL', value: `자격 이상 ${qualErr.length}건`, detail: '멘토코치 자격 만료/정지 또는 부적격자 적발 (탈락 위험)' };
+            }
+          }
+        },
+        {
+          name: 'KAC 자격 취득일 이후 이수 여부',
+          rule: 'KAC 자격 취득일 이후에 받은 멘토코칭만 유효 인정',
+          eval: () => {
+            if (!ment) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            if (!baseline.kacCertDate) return { status: 'WAITING', value: '취득일 미입력', detail: '상단에 KAC 자격 취득일을 입력해 주세요.' };
+            const beforeKac = ment.rows.filter(r => r.errors && r.errors.some(e => e.code === 'MC-03-KAC'));
+            if (beforeKac.length === 0) {
+              return { status: 'PASS', value: 'KAC 취득 후 이수 준수', detail: `KAC 취득일(${baseline.kacCertDate}) 이후 세션 정상 이수` };
+            } else {
+              return { status: 'FAIL', value: `KAC 취득 전 이수 ${beforeKac.length}건`, detail: 'KAC 취득일 이전 멘토코칭은 시간 불인정 처리' };
+            }
+          }
+        }
+      ]
+    },
+    {
+      name: '3. 1:1 코치더코치 리스트 (의무시간 및 규격 세션)',
+      items: [
+        {
+          name: '1:1 코치더코치 의무 이수 시간',
+          rule: `${isPortfolio ? '포트폴리오 8시간 이상' : '일반 5시간 이상'} 필수 이수 (미달 시 탈락)`,
+          eval: () => {
+            if (!cctc) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const reqMin = cctc.requiredMinutes || (isPortfolio ? 480 : 300);
+            const credMin = cctc.creditedMinutesTotal || 0;
+            const h = (credMin / 60).toFixed(1);
+            const reqH = (reqMin / 60).toFixed(0);
+            if (credMin >= reqMin) {
+              return { status: 'PASS', value: `총 ${h}h 충족 (기준 충족)`, detail: `의무 시간(${reqH}h) 충족 완료` };
+            } else {
+              return { status: 'FAIL', value: `총 ${h}h (부족)`, detail: `의무 시간(${reqH}h)까지 ${((reqMin - credMin) / 60).toFixed(1)}시간 부족 (탈락 사유)` };
+            }
+          }
+        },
+        {
+          name: '1:1 형태 및 세션 규격 (30~60분)',
+          rule: '반드시 1:1 형태 및 세션당 30분 이상 60분 이하 규격 준수 (미달/초과 시 미인정)',
+          eval: () => {
+            if (!cctc) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const fmtErr = cctc.rows.filter(r => r.errors && r.errors.some(e => ['CC-04', 'CC-06'].includes(e.code)));
+            if (fmtErr.length === 0) {
+              return { status: 'PASS', value: '1:1 및 30~60분 규격 준수', detail: '모든 세션이 1:1 형태 및 세션당 30~60분 규격 준수' };
+            } else {
+              return { status: 'FAIL', value: `규격 미달 ${fmtErr.length}건`, detail: '30분 미만, 60분 초과 또는 다자간 세션 발생' };
+            }
+          }
+        },
+        {
+          name: '상위코치 자격 유효성 확인',
+          rule: '코칭 당시 상위코치 KPC/KSC 자격 보유 및 유효 상태 확인 (만료/정지 시 미인정)',
+          eval: () => {
+            if (!cctc) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const qualErr = cctc.rows.filter(r => r.errors && r.errors.some(e => ['CC-07', 'CC-08'].includes(e.code)));
+            if (qualErr.length === 0) {
+              return { status: 'PASS', value: '상위코치 자격 유효 확인', detail: '코치 자격(KPC/KSC) 및 유효 상태 정상' };
+            } else {
+              return { status: 'FAIL', value: `자격 이상 ${qualErr.length}건`, detail: '상위코치 자격 만료/정지 건 적발' };
+            }
+          }
+        },
+        {
+          name: 'KAC 자격 취득일 이후 이수 여부',
+          rule: 'KAC 자격 취득일 이후에 받은 1:1 코치더코치 세션만 인정',
+          eval: () => {
+            if (!cctc) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            if (!baseline.kacCertDate) return { status: 'WAITING', value: '취득일 미입력', detail: '상단에 KAC 자격 취득일을 입력해 주세요.' };
+            const beforeKac = cctc.rows.filter(r => r.errors && r.errors.some(e => e.code === 'CC-03-KAC'));
+            if (beforeKac.length === 0) {
+              return { status: 'PASS', value: 'KAC 취득 후 이수 준수', detail: `KAC 취득일(${baseline.kacCertDate}) 이후 세션 정상 이수` };
+            } else {
+              return { status: 'FAIL', value: `KAC 취득 전 이수 ${beforeKac.length}건`, detail: 'KAC 취득일 이전 1:1 CTC는 인정되지 않습니다.' };
+            }
+          }
+        }
+      ]
+    },
+    {
+      name: '4. 통합 교차 검증 (Cross-Timeline Check)',
+      items: [
+        {
+          name: '서류 간 상호 이중 기재(중복) 배제',
+          rule: '코칭일지, 멘토코칭리스트, 1:1 코치더코치리스트 간 동일 세션 중복 기재 금지',
+          eval: () => {
+            if (!hasFiles) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const crossDups = (cross || []).filter(c => c.type === 'CROSS_DUPLICATION');
+            if (crossDups.length === 0) {
+              return { status: 'PASS', value: '이중 기재 없음 (정상)', detail: '3종 서류 간 상호 중복 기재된 세션이 없습니다.' };
+            } else {
+              return { status: 'FAIL', value: `중복 기재 ${crossDups.length}건`, detail: '동일 세션이 둘 이상의 서류에 이중으로 등록되었습니다.' };
+            }
+          }
+        },
+        {
+          name: '동시 진행 불가 충돌 배제',
+          rule: '동일 날짜·시간대에 둘 이상의 세션 동시 수행 불가 (코칭 중 피코칭 충돌 등)',
+          eval: () => {
+            if (!hasFiles) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const simuls = (cross || []).filter(c => c.type === 'SIMULTANEOUS_EVENT');
+            if (simuls.length === 0) {
+              return { status: 'PASS', value: '시간대 겹침 없음 (정상)', detail: '동일 시간대 진행 불가능한 충돌 일정이 없습니다.' };
+            } else {
+              return { status: 'FAIL', value: `동시 충돌 ${simuls.length}건`, detail: '동일 일시 시간대에 두 세션이 겹쳐서 진행되었습니다.' };
+            }
+          }
+        },
+        {
+          name: '코칭 교육 시간 중 실습 배제',
+          rule: '등록된 코칭 교육 시간 중에 실시한 코칭 실습(피코칭 포함) 배제',
+          eval: () => {
+            if (!baseline.educationSchedules || baseline.educationSchedules.length === 0) {
+              return { status: 'NA', value: '해당 없음 (일정 미등록)', detail: '등록된 코칭 교육 일정이 없습니다. (선택 사항)' };
+            }
+            if (!hasFiles) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const eduConflicts = (cross || []).filter(c => c.type === 'EDUCATION_CONFLICT');
+            if (eduConflicts.length === 0) {
+              return { status: 'PASS', value: '교육 시간 충돌 없음', detail: '등록된 코칭 교육 일정과 겹치는 실습 세션이 없습니다.' };
+            } else {
+              return { status: 'FAIL', value: `교육 중 실습 ${eduConflicts.length}건`, detail: '코칭 교육 시간 중에 진행한 실습이 발견되었습니다.' };
+            }
+          }
+        }
+      ]
+    }
+  ];
+
+  let tbodyHtml = '';
+  let totalCount = 0;
+  let passCount = 0;
+  let warnCount = 0;
+  let failCount = 0;
+
+  categories.forEach((cat) => {
+    tbodyHtml += `
+      <tr class="checklist-cat-header">
+        <td colspan="5">${cat.name}</td>
+      </tr>
+    `;
+
+    cat.items.forEach((item) => {
+      totalCount++;
+      const res = item.eval();
+
+      let badgeHtml = '';
+      let rowClass = '';
+
+      if (res.status === 'PASS') {
+        passCount++;
+        badgeHtml = `<span class="chk-badge pass">${getIcon('checkCircle')} 적합</span>`;
+      } else if (res.status === 'WARN') {
+        warnCount++;
+        rowClass = 'chk-row-warn';
+        badgeHtml = `<span class="chk-badge warn">${getIcon('alertTriangle')} 주의</span>`;
+      } else if (res.status === 'FAIL') {
+        failCount++;
+        rowClass = 'chk-row-fail';
+        badgeHtml = `<span class="chk-badge fail">${getIcon('xCircle')} 부적합</span>`;
+      } else if (res.status === 'NA') {
+        badgeHtml = `<span class="chk-badge na">- 해당없음</span>`;
+      } else {
+        badgeHtml = `<span class="chk-badge waiting">대기</span>`;
+      }
+
+      tbodyHtml += `
+        <tr class="${rowClass}">
+          <td style="color: var(--text-muted); font-size: 0.78rem;">${cat.name.split(' ')[0]}</td>
+          <td style="font-weight: 600; color: var(--text-main);">${item.name}</td>
+          <td class="checklist-rule-desc">${item.rule}</td>
+          <td>
+            <div class="checklist-val-text">${res.value}</div>
+            <div class="checklist-val-detail">${res.detail}</div>
+          </td>
+          <td style="text-align: center;">${badgeHtml}</td>
+        </tr>
+      `;
+    });
+  });
+
+  tbody.innerHTML = tbodyHtml;
+
+  // Update Summary Badge
+  if (!hasFiles) {
+    summaryBadge.className = 'checklist-badge waiting';
+    summaryBadge.innerText = '서류 업로드 대기중';
+  } else if (failCount > 0) {
+    summaryBadge.className = 'checklist-badge fail';
+    summaryBadge.innerText = `❌ 부적합/탈락위험 (${failCount}건) 발견`;
+  } else if (warnCount > 0) {
+    summaryBadge.className = 'checklist-badge warn';
+    summaryBadge.innerText = `⚠️ 주의/절사 항목 (${warnCount}건)`;
+  } else {
+    summaryBadge.className = 'checklist-badge pass';
+    summaryBadge.innerText = `✓ 전체 점검 통과 (${passCount}/${totalCount})`;
+  }
 }
 
 // Render Top Banner

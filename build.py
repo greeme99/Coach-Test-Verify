@@ -55,6 +55,9 @@ def build_single_html():
     html = html.replace("<!-- INLINE_TRASH_ICON -->", icon_map.get("trash", ""))
     html = html.replace("<!-- INLINE_SAVE_ICON -->", icon_map.get("save", ""))
     html = html.replace("<!-- INLINE_ROTATE_ICON -->", icon_map.get("rotateCcw", ""))
+    html = html.replace("<!-- INLINE_LIST_CHECK_ICON -->", icon_map.get("listCheck", ""))
+    html = html.replace("<!-- INLINE_CHEVRON_DOWN_ICON -->", icon_map.get("chevronDown", ""))
+    html = html.replace("<!-- INLINE_PLAY_CHECK_ICON -->", icon_map.get("playCheck", ""))
 
     print("[4/5] Injecting JavaScript modules...")
     html = html.replace("/* INLINE_ICONS_JS */", icons_js)
