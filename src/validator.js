@@ -168,9 +168,17 @@ class CoachingLogValidator {
           }
 
           // Check Coach Name & Cert No in F row
+          // KAC 자격 취득일 이전에는 KAC 코치 자격번호도 코치더코치로 인정 (KAC 취득일 이후는 KPC/KSC 상위코치 필수)
+          const isBeforeKac = Boolean(baseline.kacCertDate && normDate && (compareDates(normDate, baseline.kacCertDate) < 0));
+          const hasKac = /KAC\s*\d+/i.test(cleanClient);
           const hasKpcOrKsc = /(KPC|KSC)\s*\d+/i.test(cleanClient);
-          if (!hasKpcOrKsc) {
-            addRowError(rowIndex, 'CL-06-COACH', "받은 코치더코치 고객명에는 상위코치 이름과 KPC/KSC 자격번호를 기재해야 합니다.", "예: 홍길동(KPC90124)");
+
+          if (hasKac) {
+            if (baseline.kacCertDate && !isBeforeKac) {
+              addRowError(rowIndex, 'CL-06-COACH-KAC', `KAC 취득일(${baseline.kacCertDate}) 이후의 코치더코치는 상위코치(KPC/KSC)로부터 받아야 합니다. (KAC 코치 불가)`, "KAC 취득일 이후에는 KPC 이상의 상위코치로부터 코치더코치를 받아야 합니다.");
+            }
+          } else if (!hasKpcOrKsc) {
+            addRowError(rowIndex, 'CL-06-COACH', "받은 코치더코치 고객명에는 코치 이름과 자격번호를 기재해야 합니다.", isBeforeKac ? "예: 홍길동(KAC10644) 또는 홍길동(KPC90124)" : "예: 홍길동(KPC90124)");
           }
         }
       }
