@@ -25,7 +25,8 @@
       <div class="header-actions">
         <div class="badge-tag privacy">
           <!-- INLINE_SHIELD_ICON -->
-          <span>100% 로컬 브라우저 처리 (개인정보 외부전송 0건)</span>
+          <span class="privacy-text-full">100% 로컬 브라우저 처리 (개인정보 외부전송 0건)</span>
+          <span class="privacy-text-short">100% 로컬 오프라인</span>
         </div>
         <div class="theme-selector">
           <button type="button" class="theme-btn active" data-theme="light">라이트</button>
@@ -41,12 +42,12 @@
     <!-- 2. Baseline Information Form Card -->
     <section class="section-block">
       <div class="card">
-        <div class="card-title">
-          <div style="display: flex; align-items: center; gap: 8px;">
+        <div class="card-title baseline-card-header">
+          <div class="baseline-header-title" style="display: flex; align-items: center; gap: 8px;">
             <span>1. 응시 기준 정보 설정</span>
             <span id="baseline-saved-pill" class="badge-tag" style="display: none; background-color: var(--success-bg); color: var(--success-text); border-color: var(--success-border);">✓ 저장됨</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="baseline-header-actions" style="display: flex; align-items: center; gap: 8px;">
             <button type="button" id="btn-save-baseline" class="btn-sm" style="display: inline-flex; align-items: center; gap: 4px; font-weight: 600; color: var(--primary); border-color: var(--primary); background: var(--bg-card); cursor: pointer;">
               <!-- INLINE_SAVE_ICON -->
               <span>기준정보 저장</span>
@@ -173,7 +174,10 @@
             서류 업로드 전에는 점검 항목 기준이 안내되며, 3종 서류 업로드 완료 시 각 항목별 충족 여부와 상세 진단 결과가 실시간 표시됩니다.
           </p>
 
-          <div class="table-responsive" style="margin-top: 12px;">
+          <div class="mobile-scroll-hint">
+            <span>↔ 좌우로 스크롤하여 체크리스트 검증 결과 및 판정을 확인하세요</span>
+          </div>
+          <div class="table-responsive" style="margin-top: 8px;">
             <table class="data-table checklist-table" id="checklist-table">
               <thead>
                 <tr>
@@ -326,8 +330,8 @@
     </section>
 
     <!-- 6. Action & Report Bar -->
-    <section class="section-block" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-      <div style="display: flex; gap: 10px;">
+    <section class="section-block action-bar-section">
+      <div class="action-bar-left">
         <button type="button" id="btn-print-report" class="btn-primary">
           <!-- INLINE_PRINTER_ICON -->
           <span>진단 리포트 인쇄 / PDF 저장</span>
@@ -337,7 +341,7 @@
           <span>수정 조치 가이드 복사 (Markdown)</span>
         </button>
       </div>
-      <div>
+      <div class="action-bar-right">
         <button type="button" id="btn-reset-all" class="btn-outline" style="color: var(--danger-text);">
           <!-- INLINE_TRASH_ICON -->
           <span>전체 데이터 초기화</span>

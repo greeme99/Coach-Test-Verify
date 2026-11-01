@@ -1269,6 +1269,9 @@ function renderCoachingLogTable(container, clog, filterOnlyErrors) {
   }).join('');
 
   container.innerHTML = `
+    <div class="mobile-scroll-hint">
+      <span>↔ 좌우로 스크롤하여 판정 사유 및 조치 가이드를 확인하세요</span>
+    </div>
     <div class="table-wrap">
       <table class="data-table">
         <thead>
@@ -1332,6 +1335,9 @@ function renderMentorTable(container, ment, filterOnlyErrors) {
   }).join('');
 
   container.innerHTML = `
+    <div class="mobile-scroll-hint">
+      <span>↔ 좌우로 스크롤하여 멘토코칭 인정시간 및 조치 가이드를 확인하세요</span>
+    </div>
     <div class="table-wrap">
       <table class="data-table">
         <thead>
@@ -1394,6 +1400,9 @@ function renderCoachTheCoachTable(container, cctc, filterOnlyErrors) {
   }).join('');
 
   container.innerHTML = `
+    <div class="mobile-scroll-hint">
+      <span>↔ 좌우로 스크롤하여 1:1 CTC 인정여부 및 조치 가이드를 확인하세요</span>
+    </div>
     <div class="table-wrap">
       <table class="data-table">
         <thead>
@@ -1434,6 +1443,9 @@ function renderCrossTimelineTable(container, cross) {
   `).join('');
 
   container.innerHTML = `
+    <div class="mobile-scroll-hint">
+      <span>↔ 좌우로 스크롤하여 충돌 내역 및 조치 가이드를 확인하세요</span>
+    </div>
     <div class="table-wrap">
       <table class="data-table">
         <thead>
