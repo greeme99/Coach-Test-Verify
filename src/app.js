@@ -637,12 +637,12 @@ function renderChecklist() {
       items: [
         {
           name: '총 코칭시간 200시간 이상',
-          rule: '총 유효 실습 시간 200.0시간 이상 기재 필수 (오류 제외 후 실 인정 시간 기준)',
+          rule: '총 유효 실습 시간 200.0시간 이상 기재 필수 (KAC 누적 인정 포함 가능, 오류 제외 후 실 인정 시간 기준)',
           eval: () => {
             if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
             const h = (clog.finalTotalMinutes || 0) / 60;
             if (clog.finalTotalMinutes >= 12000) {
-              return { status: 'PASS', value: `총 ${h.toFixed(1)}h 인정 (기준 충족)`, detail: `기준 200h 대비 +${(h - 200).toFixed(1)}h 초과 달성` };
+              return { status: 'PASS', value: `총 ${h.toFixed(1)}h 인정 (기준 충족)`, detail: `기준 200h 대비 +${(h - 200).toFixed(1)}h 초과 달성 (KAC 시간 누적 포함)` };
             } else {
               return { status: 'FAIL', value: `총 ${h.toFixed(1)}h (부족)`, detail: `기준 200시간까지 ${(200 - h).toFixed(1)}시간 부족 (서류 탈락 사유)` };
             }
@@ -650,12 +650,12 @@ function renderChecklist() {
         },
         {
           name: '유료 코칭시간 40시간 이상',
-          rule: '유료 코칭 실습 시간 40.0시간(2,400분) 이상 필수 (미달 시 탈락)',
+          rule: '유료 실습 시간 40.0시간(2,400분) 이상 필수 (금액 한도 없음, 물품 수령 가능, 받은 CTC·동료·가족 코칭은 제외)',
           eval: () => {
             if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
             const ph = (clog.totalPaidMinutes || 0) / 60;
             if (clog.totalPaidMinutes >= 2400) {
-              return { status: 'PASS', value: `유료 ${ph.toFixed(1)}h 인정 (기준 충족)`, detail: `기준 40h 대비 +${(ph - 40).toFixed(1)}h 충족` };
+              return { status: 'PASS', value: `유료 ${ph.toFixed(1)}h 인정 (기준 충족)`, detail: `기준 40h 대비 +${(ph - 40).toFixed(1)}h 충족 (유료 기준 충족)` };
             } else {
               return { status: 'FAIL', value: `유료 ${ph.toFixed(1)}h (부족)`, detail: `기준 40시간까지 ${(40 - ph).toFixed(1)}시간 부족 (서류 탈락 사유)` };
             }
@@ -663,22 +663,22 @@ function renderChecklist() {
         },
         {
           name: '코칭일지 작성 오류 10개 이하',
-          rule: '코칭일지 작성오류 10개 초과 시 탈락 (오류 건수는 전체 코칭시간에서 제외)',
+          rule: '코칭일지 건별 작성오류 10개 초과 시 탈락 (오류 건수에 해당된 시간은 전체 코칭시간 합계에서 제외)',
           eval: () => {
             if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
             const ec = clog.errorCount || 0;
             if (ec === 0) {
               return { status: 'PASS', value: '작성 오류 0건 (완전 무결)', detail: '오류 10건 허용 기준 이내 준수' };
             } else if (ec <= 10) {
-              return { status: 'WARN', value: `작성 오류 ${ec}건 발견 (시간 차감)`, detail: '10건 허용 기준 이내이나 오류 행 시간은 전액 차감됨' };
+              return { status: 'WARN', value: `작성 오류 ${ec}건 발견 (시간 차감)`, detail: '10건 허용 기준 이내이나 오류 행 시간은 전체 코칭시간에서 제외됨' };
             } else {
               return { status: 'FAIL', value: `작성 오류 ${ec}건 (탈락 위험)`, detail: '허용치(최대 10개) 초과로 서류 심사 불합격 기준' };
             }
           }
         },
         {
-          name: '코칭 기초 교육완료일 이후 실습',
-          rule: '코칭 교육을 받으면서 시작한 실습만 인정 (기초 교육완료일 이전 실습은 오류 처리)',
+          name: '코칭 교육 1일차 종료 이후 실습 진행',
+          rule: '교육리스트 상 코칭 교육 1일차 종료 이후 실시한 코칭만 인정 (교육 전 및 교육시간 중 실습·데모 작성 불가)',
           eval: () => {
             const eduDate = baseline.coachingBasicEduDate || baseline.coachingEduStartDate;
             if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
@@ -693,7 +693,7 @@ function renderChecklist() {
         },
         {
           name: '날짜 및 시간순서 오름차순 정렬',
-          rule: '코칭일지 기재 날짜와 시작시간 오름차순 정렬 필수 (미정렬 시 작성 오류)',
+          rule: '코칭일지 기재 날짜와 시작시간 오름차순 정렬 필수 (미정렬 시 작성 오류 산정)',
           eval: () => {
             if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
             const orderErr = clog.rows.filter(r => r.errors && r.errors.some(e => e.code === 'CL-03-ORDER'));
@@ -705,48 +705,48 @@ function renderChecklist() {
           }
         },
         {
-          name: '코칭형태 인원수 기재 필수',
-          rule: "'1:1대면', '1:1비대면' 또는 그룹 인원수(예: 1:3대면) 명시 필수 (미기재 시 오류)",
+          name: '코칭형태 인원수 및 비인가 매체 배제',
+          rule: "'1:1대면', '1:1비대면' 또는 그룹(본인 포함 10인 이하) 인원수 명시 필수, 문자·SNS·메일 코칭 불가",
           eval: () => {
             if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
-            const fmtErr = clog.rows.filter(r => r.errors && r.errors.some(e => e.code && e.code.startsWith('CL-07')));
+            const fmtErr = clog.rows.filter(r => r.errors && r.errors.some(e => e.code && e.code.startsWith('CL-07') && e.code !== 'CL-07-PEER-PAID' && e.code !== 'CL-07-FAMILY-PAID'));
             if (fmtErr.length === 0) {
-              return { status: 'PASS', value: '코칭형태 인원수 규격 준수', detail: '모든 행에 1:1/다자간 및 대면/비대면 인원수 정상 기재' };
+              return { status: 'PASS', value: '코칭형태 인원수 규격 준수', detail: '모든 행에 1:1/다자간 및 대면/비대면 인원수 정상 기재 (문자/SNS 배제)' };
             } else {
-              return { status: 'FAIL', value: `인원수 미기재 ${fmtErr.length}건`, detail: '인원수 누락 또는 인정되지 않는 코칭형태 기재' };
+              return { status: 'FAIL', value: `형태 오류 ${fmtErr.length}건`, detail: '인원수 누락 또는 비인가 매체(문자, SNS 등) 기재 적발' };
             }
           }
         },
         {
-          name: '세션 인정 한도 및 1일 120분 한도',
-          rule: '회기당 30분~120분만 인정(미만/초과 시 오류), 동일 고객 하루 최대 120분 제한',
+          name: '세션 인정 한도(30~120분) 및 1일 120분 한도',
+          rule: '한 세션은 30분~120분만 인정, 하루 동일인 코칭 시 2회 이하 및 2회 합산 최대 120분 이하 준수',
           eval: () => {
             if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
-            const limitErr = clog.rows.filter(r => r.errors && r.errors.some(e => ['CL-04-DURATION', 'CL-05-DAILY', 'CL-09-COUNT', 'CL-09-HOURS'].includes(e.code)));
+            const limitErr = clog.rows.filter(r => r.errors && r.errors.some(e => ['CL-04-DURATION', 'CL-05-DAILY', 'CL-09-COUNT', 'CL-09-HOURS', 'CL-08-LIMIT'].includes(e.code)));
             if (limitErr.length === 0) {
-              return { status: 'PASS', value: '세션 및 일일 한도 준수', detail: '회기당 30~120분 및 동일 고객 1일 120분 한도 전건 충족' };
+              return { status: 'PASS', value: '세션 및 일일 한도 준수', detail: '회기당 30~120분 및 하루 동일인 2회/120분 한도 전건 충족' };
             } else {
-              return { status: 'WARN', value: `한도 초과/미달 ${limitErr.length}건`, detail: '30분 미만, 120분 초과 또는 일일 합산 초과 (0분 처리)' };
+              return { status: 'WARN', value: `한도 초과/미달 ${limitErr.length}건`, detail: '30분 미만, 120분 초과 또는 동일인 일일 합산 초과 (0분 처리)' };
             }
           }
         },
         {
-          name: '받은 코치더코치 복합 산정 기준',
-          rule: '2배 가산값 기재, KAC 이전 KAC 코치 인정/이후 KPC·KSC 필수, 최대 80h 및 유료 25h 한도',
+          name: '받은 코치더코치 복합 산정 (무료 원칙/2배수/상한)',
+          rule: '1:1·1:2 2배 환산(60~120분), 그룹(3~5명) 1배, 전액 무료코칭 해당, KAC 전 최대 25h / 총 80h 상한',
           eval: () => {
             if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
-            const ctcErr = clog.rows.filter(r => r.errors && r.errors.some(e => e.code.includes('CTC')));
+            const ctcErr = clog.rows.filter(r => r.errors && r.errors.some(e => e.code.includes('CTC') || e.code.includes('CL-11') || e.code.includes('CL-06-COACH')));
             const ctcTotalH = ((clog.creditedCtcTotal || 0) / 60).toFixed(1);
             if (ctcErr.length === 0) {
-              return { status: 'PASS', value: `인정 ${ctcTotalH}h (규정 준수)`, detail: '코치 자격 표기 및 시간 한도(최대 80h/25h) 규정 준수' };
+              return { status: 'PASS', value: `인정 ${ctcTotalH}h (전액 무료코칭 해당)`, detail: '코치 자격 표기, 2배수(60~120분)/1배수 규격 및 상한(KAC 전 25h, 총 80h) 준수' };
             } else {
-              return { status: 'WARN', value: `CTC 오류 ${ctcErr.length}건 발견`, detail: '상위코치 자격 표기 또는 시간 한도 초과 절사 적용' };
+              return { status: 'WARN', value: `CTC 오류/주의 ${ctcErr.length}건 발견`, detail: '상위코치 자격 표기 또는 시간 한도 초과 절사 적용' };
             }
           }
         },
         {
-          name: '고객 다변화 (5명 이상) 및 응시자명 기재',
-          rule: '최소 5명 이상의 다양한 고객 대상 코칭 필수, 상단 A4/B4 셀 응시자 성명 기재 필수',
+          name: '고객 다변화 (5명 이상) 및 응시자명 상단 기재',
+          rule: '최소 5명 이상의 다양한 고객 대상 코칭 필수(계약 인지 필수), 상단 A4/B4 셀 응시자 성명 필수',
           eval: () => {
             if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
             const clientCount = clog.clientCount || 0;
@@ -759,6 +759,19 @@ function renderChecklist() {
               return { status: 'FAIL', value: '상단 응시자 성명 누락', detail: '엑셀 상단 A4/B4 셀에 응시자 성명을 반드시 기재하십시오.' };
             }
           }
+        },
+        {
+          name: '상호·가족·그룹 코칭 규정 준수 (무료 및 인원 규정)',
+          rule: '동료 상호코칭 및 가족(배우자·직계혈족) 코칭은 무료 작성, 그룹코칭은 본인 포함 10인 이하(시간 배수 증가 금지)',
+          eval: () => {
+            if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const ruleErr = clog.rows.filter(r => r.errors && r.errors.some(e => ['CL-07-PEER-PAID', 'CL-07-FAMILY-PAID', 'CL-10-GROUP'].includes(e.code)));
+            if (ruleErr.length === 0) {
+              return { status: 'PASS', value: '상호·가족·그룹 코칭 규정 준수', detail: '상호/가족 코칭 무료 분류 및 그룹코칭 본인 포함 10인 이하 준수' };
+            } else {
+              return { status: 'FAIL', value: `특수 코칭 위반 ${ruleErr.length}건 발견`, detail: '동료/가족 코칭 유료 기재 또는 그룹코칭 10인 초과 적발' };
+            }
+          }
         }
       ]
     },
@@ -767,7 +780,7 @@ function renderChecklist() {
       items: [
         {
           name: '멘토코칭 진행 기간 준수',
-          rule: `시작일~종료일 기준 ${isPortfolio ? '포트폴리오 90일' : '일반 60일'} 이상 (부족 시 탈락)`,
+          rule: `첫 세션부터 마지막 세션까지 일반 2개월(60일), 포트폴리오 3개월(90일) 이상 (기간 부족 시 탈락)`,
           eval: () => {
             if (!ment) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
             const reqDays = ment.requiredSpanDays || (isPortfolio ? 90 : 60);
@@ -781,7 +794,7 @@ function renderChecklist() {
         },
         {
           name: '멘토코칭 의무 시간 및 회기 준수',
-          rule: `${isPortfolio ? '포트폴리오 10시간 이상' : '일반 5시간 5회기 이상'} (의무 미달 시 탈락)`,
+          rule: `${isPortfolio ? '포트폴리오 10시간 10회기 의무' : '일반 5시간 5회기 의무'} (미달 시 탈락)`,
           eval: () => {
             if (!ment) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
             const reqMin = ment.requiredMinutes || (isPortfolio ? 600 : 300);
@@ -789,21 +802,22 @@ function renderChecklist() {
             const h = (credMin / 60).toFixed(1);
             const reqH = (reqMin / 60).toFixed(0);
             const count = ment.validSessionCount || 0;
+            const reqCount = isPortfolio ? 10 : 5;
             const hasHours = credMin >= reqMin;
-            const hasCount = isPortfolio ? true : count >= 5;
+            const hasCount = count >= reqCount;
             if (hasHours && hasCount) {
-              return { status: 'PASS', value: `총 ${h}h (${count}회기) 충족`, detail: `의무 시간(${reqH}h) 및 회기 기준 충족 완료` };
+              return { status: 'PASS', value: `총 ${h}h (${count}회기) 충족`, detail: `의무 시간(${reqH}h) 및 의무 회기(${reqCount}회기) 기준 충족 완료` };
             } else {
-              return { status: 'FAIL', value: `총 ${h}h (${count}회기)`, detail: `의무 요건(${reqH}시간${!isPortfolio ? ', 5회기' : ''}) 미달로 탈락 위험` };
+              return { status: 'FAIL', value: `총 ${h}h (${count}회기)`, detail: `의무 요건(${reqH}시간, ${reqCount}회기) 미달로 탈락 위험` };
             }
           }
         },
         {
-          name: '단일 세션 60분 초과분 절사 한도',
-          rule: '회기당 최대 60분까지만 인정 (60분 초과 세션은 60분으로 절사)',
+          name: '단일 세션 60분 규격 및 절사',
+          rule: '한 세션은 60분까지만 인정 (1회기당 60분 기록 원칙, 60분 초과분은 자동 절사)',
           eval: () => {
             if (!ment) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
-            const truncWarnings = ment.warnings.filter(w => w.code === 'MC-06-TRUNC');
+            const truncWarnings = ment.warnings.filter(w => w.code === 'MC-06-TRUNC' || w.code === 'MC-06-CAP');
             if (truncWarnings.length === 0) {
               return { status: 'PASS', value: '단일 세션 60분 이내 준수', detail: '초과 절사 대상 세션 없이 전건 규격 내 인정' };
             } else {
@@ -813,28 +827,31 @@ function renderChecklist() {
         },
         {
           name: '멘토코치 자격 유효성 확인',
-          rule: '코칭 당시 멘토코치 KPC/KSC 자격 보유 및 유효 상태 확인 (만료/정지 시 탈락)',
+          rule: '코칭 당시 유효한 KPC 이상의 인증코치 (자격 만료/정지 코치 건은 탈락 사유, KAC 코치 불가)',
           eval: () => {
             if (!ment) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
-            const qualErr = ment.rows.filter(r => r.errors && r.errors.some(e => ['MC-07', 'MC-08'].includes(e.code)));
+            const qualErr = ment.rows.filter(r => r.errors && r.errors.some(e => ['MC-07', 'MC-07-KAC', 'MC-08'].includes(e.code)));
             if (qualErr.length === 0) {
               return { status: 'PASS', value: '멘토코치 자격 유효 확인', detail: '멘토코치 자격 등급(KPC/KSC) 및 유효 상태 정상' };
             } else {
-              return { status: 'FAIL', value: `자격 이상 ${qualErr.length}건`, detail: '멘토코치 자격 만료/정지 또는 부적격자 적발 (탈락 위험)' };
+              return { status: 'FAIL', value: `자격 이상 ${qualErr.length}건`, detail: '멘토코치 자격 만료/정지 또는 부적격자(KAC 포함) 적발 (탈락 위험)' };
             }
           }
         },
         {
-          name: 'KAC 자격 취득일 이후 이수 여부',
-          rule: 'KAC 자격 취득일 이후에 받은 멘토코칭만 유효 인정',
+          name: 'KAC 취득 후 이수 및 비인가 매체 배제',
+          rule: 'KAC 자격 취득 후 이수 필수 (KAC 취득 전 미인정), 대면/비대면 진행, 문자·SNS 코칭 불가',
           eval: () => {
             if (!ment) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
             if (!baseline.kacCertDate) return { status: 'WAITING', value: '취득일 미입력', detail: '상단에 KAC 자격 취득일을 입력해 주세요.' };
-            const beforeKac = ment.rows.filter(r => r.errors && r.errors.some(e => e.code === 'MC-03-KAC'));
-            if (beforeKac.length === 0) {
-              return { status: 'PASS', value: 'KAC 취득 후 이수 준수', detail: `KAC 취득일(${baseline.kacCertDate}) 이후 세션 정상 이수` };
-            } else {
+            const beforeKac = ment.rows.filter(r => r.errors && r.errors.some(e => e.code === 'MC-03' || e.code === 'MC-03-KAC'));
+            const forbiddenFormat = ment.rows.filter(r => r.errors && r.errors.some(e => e.code === 'MC-09-FORBIDDEN'));
+            if (beforeKac.length === 0 && forbiddenFormat.length === 0) {
+              return { status: 'PASS', value: 'KAC 취득 후 이수 준수', detail: `KAC 취득일(${baseline.kacCertDate}) 이후 세션 및 대면/비대면 정상 확인` };
+            } else if (beforeKac.length > 0) {
               return { status: 'FAIL', value: `KAC 취득 전 이수 ${beforeKac.length}건`, detail: 'KAC 취득일 이전 멘토코칭은 시간 불인정 처리' };
+            } else {
+              return { status: 'FAIL', value: `비인가 매체 ${forbiddenFormat.length}건`, detail: '문자, SNS 코칭은 불인정됩니다.' };
             }
           }
         }
@@ -844,16 +861,18 @@ function renderChecklist() {
       name: '3. 1:1 코치더코치 리스트 (의무시간 및 규격 세션)',
       items: [
         {
-          name: '1:1 코치더코치 의무 이수 시간',
-          rule: `${isPortfolio ? '포트폴리오 8시간 이상' : '일반 5시간 이상'} 필수 이수 (미달 시 탈락)`,
+          name: '1:1 코치더코치 의무 이수 시간 준수',
+          rule: `${isPortfolio ? '포트폴리오 8시간 의무 (8시간 초과 작성 금지)' : '일반 5시간 의무 (5시간 초과 작성 금지)'}, 1배수 기재 필수`,
           eval: () => {
             if (!cctc) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
             const reqMin = cctc.requiredMinutes || (isPortfolio ? 480 : 300);
             const credMin = cctc.creditedMinutesTotal || 0;
             const h = (credMin / 60).toFixed(1);
             const reqH = (reqMin / 60).toFixed(0);
-            if (credMin >= reqMin) {
-              return { status: 'PASS', value: `총 ${h}h 충족 (기준 충족)`, detail: `의무 시간(${reqH}h) 충족 완료` };
+            if (credMin === reqMin) {
+              return { status: 'PASS', value: `총 ${h}h 충족 (규정 일치)`, detail: `의무 시간(${reqH}h) 정확히 충족 완료` };
+            } else if (credMin > reqMin) {
+              return { status: 'WARN', value: `총 ${h}h (초과 기재 주의)`, detail: `의무 시간(${reqH}h) 충족되었으나 규정상 초과 작성하지 않도록 명시됨` };
             } else {
               return { status: 'FAIL', value: `총 ${h}h (부족)`, detail: `의무 시간(${reqH}h)까지 ${((reqMin - credMin) / 60).toFixed(1)}시간 부족 (탈락 사유)` };
             }
@@ -861,20 +880,20 @@ function renderChecklist() {
         },
         {
           name: '1:1 형태 및 세션 규격 (30~60분)',
-          rule: '반드시 1:1 형태 및 세션당 30분 이상 60분 이하 규격 준수 (미달/초과 시 미인정)',
+          rule: '반드시 1:1 형태 및 회기당 30분 이상 60분 이하 규격 준수 (그룹 CTC 불가, 문자·SNS 불가)',
           eval: () => {
             if (!cctc) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
-            const fmtErr = cctc.rows.filter(r => r.errors && r.errors.some(e => ['CC-04', 'CC-06'].includes(e.code)));
+            const fmtErr = cctc.rows.filter(r => r.errors && r.errors.some(e => ['CC-03', 'CC-06', 'CC-03-FORBIDDEN', 'CC-06-1X'].includes(e.code)));
             if (fmtErr.length === 0) {
-              return { status: 'PASS', value: '1:1 및 30~60분 규격 준수', detail: '모든 세션이 1:1 형태 및 세션당 30~60분 규격 준수' };
+              return { status: 'PASS', value: '1:1 및 30~60분 규격 준수', detail: '모든 세션이 1:1 형태, 30~60분 범위 및 1배수 기재 준수' };
             } else {
-              return { status: 'FAIL', value: `규격 미달 ${fmtErr.length}건`, detail: '30분 미만, 60분 초과 또는 다자간 세션 발생' };
+              return { status: 'FAIL', value: `규격 미달 ${fmtErr.length}건`, detail: '30분 미만, 60분 초과, 2배수 오기재 또는 비인가 매체 적발' };
             }
           }
         },
         {
           name: '상위코치 자격 유효성 확인',
-          rule: '코칭 당시 상위코치 KPC/KSC 자격 보유 및 유효 상태 확인 (만료/정지 시 미인정)',
+          rule: '코칭 당시 유효한 KPC 이상의 인증코치 (자격 만료/정지 코치 건 미인정)',
           eval: () => {
             if (!cctc) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
             const qualErr = cctc.rows.filter(r => r.errors && r.errors.some(e => ['CC-07', 'CC-08'].includes(e.code)));
@@ -886,12 +905,12 @@ function renderChecklist() {
           }
         },
         {
-          name: 'KAC 자격 취득일 이후 이수 여부',
-          rule: 'KAC 자격 취득일 이후에 받은 1:1 코치더코치 세션만 인정',
+          name: 'KAC 취득일 이후 이수 필수',
+          rule: 'KAC 자격 취득일 이후에 받은 1:1 코치더코치 세션만 유효 인정 (KAC 취득 전 미인정)',
           eval: () => {
             if (!cctc) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
             if (!baseline.kacCertDate) return { status: 'WAITING', value: '취득일 미입력', detail: '상단에 KAC 자격 취득일을 입력해 주세요.' };
-            const beforeKac = cctc.rows.filter(r => r.errors && r.errors.some(e => e.code === 'CC-03-KAC'));
+            const beforeKac = cctc.rows.filter(r => r.errors && r.errors.some(e => e.code === 'CC-04' || e.code === 'CC-03-KAC'));
             if (beforeKac.length === 0) {
               return { status: 'PASS', value: 'KAC 취득 후 이수 준수', detail: `KAC 취득일(${baseline.kacCertDate}) 이후 세션 정상 이수` };
             } else {
@@ -906,7 +925,7 @@ function renderChecklist() {
       items: [
         {
           name: '서류 간 상호 이중 기재(중복) 배제',
-          rule: '코칭일지, 멘토코칭리스트, 1:1 코치더코치리스트 간 동일 세션 중복 기재 금지',
+          rule: '[코칭일지], [멘토코칭 리스트], [1:1 코치더코치 리스트] 상호 간 동일 세션 중복 기재 금지',
           eval: () => {
             if (!hasFiles) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
             const crossDups = (cross || []).filter(c => c.type === 'CROSS_DUPLICATION');
@@ -932,7 +951,7 @@ function renderChecklist() {
         },
         {
           name: '코칭 교육 시간 중 실습 배제',
-          rule: '등록된 코칭 교육 시간 중에 실시한 코칭 실습(피코칭 포함) 배제',
+          rule: '등록된 코칭 교육 시간 중에 실시한 코칭 실습, 코칭 데모, 멘토코칭, 코치더코치 작성 불가',
           eval: () => {
             if (!baseline.educationSchedules || baseline.educationSchedules.length === 0) {
               return { status: 'NA', value: '해당 없음 (일정 미등록)', detail: '등록된 코칭 교육 일정이 없습니다. (선택 사항)' };

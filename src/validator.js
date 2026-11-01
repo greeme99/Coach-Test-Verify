@@ -110,6 +110,16 @@ class CoachingLogValidator {
         addRowError(rowIndex, 'CL-15-MULTI', "유료, 무료, 받은CTC 중 2개 이상의 열에 시간이 동시 기재되었습니다.", "한 세션은 유료, 무료, 받은 코치더코치 중 한 열에만 기재해야 합니다.");
       }
 
+      // Check peer/family coaching in paid column (Must be free coaching only per regulation)
+      if (numPaid !== null && numPaid > 0) {
+        if (/상호|동료/i.test(cleanClient)) {
+          addRowError(rowIndex, 'CL-07-PEER-PAID', `상호(동료)코칭('${cleanClient}')은 유료코칭으로 작성할 수 없습니다.`, "동료 간 상호코칭은 무료코칭 시간으로만 작성 가능합니다.");
+        }
+        if (/가족|배우자|자녀|부모/i.test(cleanClient)) {
+          addRowError(rowIndex, 'CL-07-FAMILY-PAID', `가족코칭('${cleanClient}')은 유료코칭으로 작성할 수 없습니다.`, "가족(배우자 및 직계혈족) 코칭은 무료코칭 시간으로만 작성 가능합니다.");
+        }
+      }
+
       // Coaching Format & Participant Count
       const cleanFormat = String(formatStr || '').trim().replace(/\s+/g, '');
       const isFormatValid = /1:[1-9]/.test(cleanFormat) && (cleanFormat.includes('대면') || cleanFormat.includes('비대면'));
@@ -346,7 +356,7 @@ class MentorValidator {
     const isPortfolio = baseline.examType === 'PORTFOLIO';
     const requiredSpanDays = isPortfolio ? 90 : 60;
     const requiredMinutes = isPortfolio ? 600 : 300; // 10h vs 5h
-    const requiredSessions = isPortfolio ? 0 : 5;   // 5 sessions for standard
+    const requiredSessions = isPortfolio ? 10 : 5;   // 10 sessions for portfolio, 5 sessions for standard
 
     let creditedMinutesTotal = 0;
     let validSessionCount = 0;
@@ -398,6 +408,10 @@ class MentorValidator {
       }
 
       const cleanFormat = String(formatStr || '').trim();
+      const isForbiddenMedium = /(문자|sns|카카오|카톡|메일|이메일)/i.test(cleanFormat);
+      if (isForbiddenMedium) {
+        addRowError(rowIndex, 'MC-09-FORBIDDEN', "문자, SNS 등의 코칭은 인정되지 않습니다.", "멘토코칭은 대면 또는 비대면(전화/화상)으로만 진행 가능합니다.");
+      }
       if (!cleanFormat.includes('대면') && !cleanFormat.includes('비대면')) {
         addRowError(rowIndex, 'MC-09', `코칭형태 오류: '${formatStr}'`, "대면 또는 비대면으로 기재하십시오.");
       }
@@ -445,7 +459,7 @@ class MentorValidator {
       errors.push({
         code: 'MC-05-COUNT',
         message: `멘토코칭 회기 수(${validSessionCount}회기)가 의무 기준인 ${requiredSessions}회기에 미달합니다. (탈락 사유)`,
-        fixGuide: "일반 응시는 최소 5회기 이상 이수해야 합니다."
+        fixGuide: `${isPortfolio ? '포트폴리오 응시는 최소 10회기' : '일반 응시는 최소 5회기'} 이상 이수해야 합니다.`
       });
     }
 
@@ -518,6 +532,10 @@ class CoachTheCoachValidator {
       }
 
       const cleanFormat = String(formatStr || '').trim().replace(/\s+/g, '');
+      const isForbiddenMedium = /(문자|sns|카카오|카톡|메일|이메일)/i.test(cleanFormat);
+      if (isForbiddenMedium) {
+        addRowError(rowIndex, 'CC-03-FORBIDDEN', "문자, SNS 등의 코칭은 인정되지 않습니다.", "1:1 코치더코치는 대면 또는 비대면(전화/화상)으로만 진행 가능합니다.");
+      }
       if (!cleanFormat.startsWith('1:1')) {
         addRowError(rowIndex, 'CC-03', "1:1 코치더코치 리스트에는 1:1 형태만 기재할 수 있습니다.", "그룹 코치더코치는 코칭일지에만 작성 가능합니다.");
       }
@@ -525,6 +543,9 @@ class CoachTheCoachValidator {
       const duration = timeParsed ? timeParsed.duration : 0;
       if (duration < 30 || duration > 60) {
         addRowError(rowIndex, 'CC-06', `단일 세션 시간(${duration}분) 규격 위반 (30분 이상 60분 이하만 유효)`, "세션당 30분~60분 범위만 인정됩니다.");
+      }
+      if (sessionMinutesVal && (sessionMinutesVal > 60 && sessionMinutesVal === duration * 2)) {
+        addRowError(rowIndex, 'CC-06-1X', `1:1 코치더코치 양식에는 1배수의 시간만 작성해야 합니다 (기재값: ${sessionMinutesVal}분).`, "1:1 코치더코치 리스트에는 2배 환산 없이 실제 시간(30~60분)만 1배수로 기재하십시오.");
       }
 
       const cleanCoach = String(coachName || '').trim();
@@ -554,6 +575,12 @@ class CoachTheCoachValidator {
         code: 'CC-05',
         message: `1:1 코치더코치 유효 시간(${formatMinutes(creditedMinutesTotal)})이 의무 기준인 ${formatMinutes(requiredMinutes)}에 미달합니다. (탈락 사유)`,
         fixGuide: `KAC 취득 후 1:1 코치더코치 ${formatMinutes(requiredMinutes)}를 충족하십시오.`
+      });
+    } else if (creditedMinutesTotal > requiredMinutes) {
+      warnings.push({
+        code: 'CC-05-EXCEED',
+        message: `1:1 코치더코치 리스트에 의무 기준(${formatMinutes(requiredMinutes)})을 초과한 ${formatMinutes(creditedMinutesTotal)}이 기재되었습니다.`,
+        fixGuide: `규정에 '의무 시간(${formatMinutes(requiredMinutes)})을 초과하여 작성하지 않는다'로 명시되어 있으므로 초과 기재분을 점검하십시오.`
       });
     }
 
