@@ -38,41 +38,51 @@ class ExcelParser {
     return DOC_TYPES.UNKNOWN;
   }
 
-  // Parse applicant name from header rows with high tolerance for spacing, colons, and parentheses
+  // Parse applicant name from header rows with high tolerance for labels ('응시자 명', '응시자명', '응시자', '성명')
+  // and formats (same cell, adjacent cell, colons, parentheses, whitespace)
   static extractApplicantName(sheet) {
-    // Check rows 3 to 6, columns A to D
-    for (let r = 3; r <= 6; r++) {
-      for (const col of ['A', 'B', 'C', 'D']) {
-        const cell = sheet[`${col}${r}`];
-        const val = cell ? String(cell.w || cell.v || '').trim() : '';
-        if (!val) continue;
+    if (!sheet) return '';
+    // Check rows 1 to 10, columns A to H (0 to 7)
+    for (let r = 1; r <= 10; r++) {
+      for (let c = 0; c < 8; c++) {
+        const addr = XLSX.utils.encode_cell({ r: r - 1, c });
+        const cell = sheet[addr];
+        if (!cell) continue;
+        const rawText = String(cell.w || cell.v || '').trim();
+        if (!rawText) continue;
 
-        // Check if this cell contains applicant label keywords
-        if (val.includes('응시자') || val.includes('성명')) {
-          // Case 1: Name is in the SAME cell
-          // Handles:
-          // '응시자 명 : 김철규', '응시자 명:김철규', '응시자 명 :김철규', '응시자 명: 김철규'
-          // '응시자 명(필수작성):김철규', '응시자 명(필수작성): 김철규'
-          // '응시자명: 김철규', '응시자명 : 김철규', '성명 : 김철규', '응시자 : 김철규' 등
-          const inlineMatch = val.match(/(?:응시자\s*명|성\s*명|응시자)\s*(?:\([^)]*\))?\s*[:：]?\s*([가-힣a-zA-Z\s]{2,15})$/);
-          if (inlineMatch && inlineMatch[1]) {
-            const candidate = inlineMatch[1].trim();
-            // Ensure candidate is not just a label
-            if (candidate && !candidate.includes('필수') && !candidate.includes('작성')) {
-              return candidate;
+        // Check if cell contains applicant keywords: '응시자' or '성명'
+        if (rawText.includes('응시자') || rawText.includes('성명')) {
+          const cleanText = rawText.replace(/\r?\n/g, ' ').trim();
+
+          // Case 1: Name is inside the SAME cell
+          // Handles: '응시자 명(필수작성): 홍길동', '응시자 명 : 홍길동', '응시자명: 홍길동', '응시자: 홍길동', '응시자 홍길동', '성명: 홍길동' 등
+          const prefixRegex = /^(?:.*?)?(?:응시자\s*명|응시자|성\s*명)\s*(?:\([^)]*\))?\s*[:：=\-]?\s*/i;
+          if (prefixRegex.test(cleanText)) {
+            const remainder = cleanText.replace(prefixRegex, '').trim();
+            const cleanCandidate = remainder.replace(/\([^)]*\)/g, '').trim();
+            if (cleanCandidate && /^[가-힣a-zA-Z\s]{2,15}$/.test(cleanCandidate)) {
+              if (!cleanCandidate.includes('필수') && !cleanCandidate.includes('작성') && 
+                  !cleanCandidate.includes('날짜') && !cleanCandidate.includes('시간') &&
+                  !cleanCandidate.includes('고객') && !cleanCandidate.includes('코치')) {
+                return cleanCandidate;
+              }
             }
           }
 
-          // Case 2: Name is in the ADJACENT cell(s) in the same row
-          const colCode = col.charCodeAt(0);
-          for (let offset = 1; offset <= 3; offset++) {
-            const nextCol = String.fromCharCode(colCode + offset);
-            const nextCell = sheet[`${nextCol}${r}`];
-            const nextVal = nextCell ? String(nextCell.w || nextCell.v || '').trim() : '';
-            if (nextVal && !nextVal.includes('필수') && !nextVal.includes('작성') && !nextVal.includes('날짜')) {
-              // Valid name candidate (Korean/English letters and spaces, 2~15 chars)
-              if (/^[가-힣a-zA-Z\s]{2,15}$/.test(nextVal)) {
-                return nextVal;
+          // Case 2: Name is in adjacent cell(s) in the same row (cols + 1 to + 4)
+          for (let offset = 1; offset <= 4; offset++) {
+            const nextAddr = XLSX.utils.encode_cell({ r: r - 1, c: c + offset });
+            const nextCell = sheet[nextAddr];
+            if (!nextCell) continue;
+            const nextVal = String(nextCell.w || nextCell.v || '').trim();
+            if (!nextVal) continue;
+            const cleanCandidate = nextVal.replace(/\([^)]*\)/g, '').trim();
+            if (cleanCandidate && /^[가-힣a-zA-Z\s]{2,15}$/.test(cleanCandidate)) {
+              if (!cleanCandidate.includes('필수') && !cleanCandidate.includes('작성') && 
+                  !cleanCandidate.includes('날짜') && !cleanCandidate.includes('시간') &&
+                  !cleanCandidate.includes('고객') && !cleanCandidate.includes('코치')) {
+                return cleanCandidate;
               }
             }
           }

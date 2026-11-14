@@ -30,13 +30,14 @@ class CoachingLogValidator {
       errors.push({
         code: 'CL-01',
         message: "상단 '응시자 명(필수작성)'이 누락되었습니다.",
-        fixGuide: "엑셀 상단 A4/B4 셀에 응시자 성명을 반드시 기재하십시오. (오류 1건 산정)"
+        fixGuide: "엑셀 상단 A4 셀에 응시자 성명을 반드시 기재하십시오. (오류 1건 산정)"
       });
     } else if (cleanBaseline && cleanExtracted !== cleanBaseline) {
-      warnings.push({
-        code: 'CL-01-WARN',
-        message: `엑셀의 응시자 명('${applicantName}')이 입력한 기준 정보('${baseline.applicantName}')와 다릅니다.`,
-        fixGuide: "응시자 성명이 본인의 공식 성명과 일치하는지 확인하십시오."
+      docErrorCount += 1;
+      errors.push({
+        code: 'CL-01-MISMATCH',
+        message: `코칭일지의 응시자 이름('${applicantName}')이 '1. 응시 기준 정보 설정'의 응시자 성명('${baseline.applicantName}')과 일치하지 않습니다.`,
+        fixGuide: "코칭일지의 응시자 명과 '1. 응시 기준 정보 설정'의 응시자 성명을 일치시키십시오. (오류 1건 산정)"
       });
     }
 
@@ -308,6 +309,7 @@ class CoachingLogValidator {
 
     return {
       isValid: errors.length === 0,
+      applicantName: applicantName || '',
       errorCount: finalErrorCount,
       docErrorCount,
       rowErrorCount: totalRowErrors,
@@ -340,16 +342,16 @@ class MentorValidator {
     const cleanBaseline = (baseline.applicantName || '').replace(/\s+/g, '');
 
     if (!cleanExtracted) {
-      warnings.push({
+      errors.push({
         code: 'MC-01',
-        message: "멘토코칭 리스트 상단 '응시자 명'이 누락되었습니다.",
-        fixGuide: "응시자 성명을 명확히 기재하십시오."
+        message: "멘토코칭 리스트 상단 '응시자 명(필수작성)'이 누락되었습니다.",
+        fixGuide: "멘토코칭 리스트 상단 A4 셀에 응시자 성명을 반드시 기재하십시오."
       });
     } else if (cleanBaseline && cleanExtracted !== cleanBaseline) {
-      warnings.push({
-        code: 'MC-01-WARN',
-        message: `멘토코칭 리스트의 응시자 명('${applicantName}')이 입력한 기준 정보('${baseline.applicantName}')와 다릅니다.`,
-        fixGuide: "응시자 성명이 본인의 공식 성명과 일치하는지 확인하십시오."
+      errors.push({
+        code: 'MC-01-MISMATCH',
+        message: `멘토코칭 리스트의 응시자 이름('${applicantName}')이 '1. 응시 기준 정보 설정'의 응시자 성명('${baseline.applicantName}')과 일치하지 않습니다.`,
+        fixGuide: "멘토코칭 리스트의 응시자 명과 '1. 응시 기준 정보 설정'의 응시자 성명을 일치시키십시오."
       });
     }
 
@@ -465,6 +467,7 @@ class MentorValidator {
 
     return {
       isValid: errors.length === 0,
+      applicantName: applicantName || '',
       creditedMinutesTotal,
       validSessionCount,
       spanDays,
@@ -494,16 +497,16 @@ class CoachTheCoachValidator {
     const cleanBaseline = (baseline.applicantName || '').replace(/\s+/g, '');
 
     if (!cleanExtracted) {
-      warnings.push({
+      errors.push({
         code: 'CC-01',
-        message: "1:1 코치더코치 리스트 상단 '응시자 명'이 누락되었습니다.",
-        fixGuide: "응시자 성명을 기재하십시오."
+        message: "1:1 코치더코치 리스트 상단 '응시자 명(필수작성)'이 누락되었습니다.",
+        fixGuide: "1:1 코치더코치 리스트 상단 A4 셀에 응시자 성명을 반드시 기재하십시오."
       });
     } else if (cleanBaseline && cleanExtracted !== cleanBaseline) {
-      warnings.push({
-        code: 'CC-01-WARN',
-        message: `1:1 코치더코치 리스트의 응시자 명('${applicantName}')이 입력한 기준 정보('${baseline.applicantName}')와 다릅니다.`,
-        fixGuide: "응시자 성명이 본인의 공식 성명과 일치하는지 확인하십시오."
+      errors.push({
+        code: 'CC-01-MISMATCH',
+        message: `1:1 코치더코치 리스트의 응시자 이름('${applicantName}')이 '1. 응시 기준 정보 설정'의 응시자 성명('${baseline.applicantName}')과 일치하지 않습니다.`,
+        fixGuide: "1:1 코치더코치 리스트의 응시자 명과 '1. 응시 기준 정보 설정'의 응시자 성명을 일치시키십시오."
       });
     }
 
@@ -586,6 +589,7 @@ class CoachTheCoachValidator {
 
     return {
       isValid: errors.length === 0,
+      applicantName: applicantName || '',
       creditedMinutesTotal,
       requiredMinutes,
       errors,
@@ -601,7 +605,43 @@ class CrossTimelineChecker {
     const conflicts = [];
     const allSessions = [];
 
-    // Flatten all valid or parsed sessions
+    // 1. Cross-Document Applicant Name Consistency Check
+    const cleanBaseline = (baseline?.applicantName || '').replace(/\s+/g, '');
+    const fileEntries = [];
+    if (clogData && clogData.applicantName !== undefined) fileEntries.push({ doc: '코칭일지', name: clogData.applicantName });
+    if (mentData && mentData.applicantName !== undefined) fileEntries.push({ doc: '멘토코칭 리스트', name: mentData.applicantName });
+    if (cctcData && cctcData.applicantName !== undefined) fileEntries.push({ doc: '1:1 코치더코치 리스트', name: cctcData.applicantName });
+
+    fileEntries.forEach(entry => {
+      const cleanName = (entry.name || '').replace(/\s+/g, '');
+      if (cleanBaseline && cleanName && cleanName !== cleanBaseline) {
+        conflicts.push({
+          type: 'APPLICANT_NAME_MISMATCH',
+          title: `응시자 성명 불일치 (${entry.doc})`,
+          desc: `${entry.doc}의 응시자 이름('${entry.name}')이 '1. 응시 기준 정보 설정'의 응시자 성명('${baseline.applicantName}')과 일치하지 않습니다.`,
+          fixGuide: `${entry.doc} 상단 응시자 명과 '1. 응시 기준 정보 설정'의 응시자 성명을 일치시키십시오.`
+        });
+      }
+    });
+
+    for (let i = 0; i < fileEntries.length; i++) {
+      for (let j = i + 1; j < fileEntries.length; j++) {
+        const e1 = fileEntries[i];
+        const e2 = fileEntries[j];
+        const c1 = (e1.name || '').replace(/\s+/g, '');
+        const c2 = (e2.name || '').replace(/\s+/g, '');
+        if (c1 && c2 && c1 !== c2) {
+          conflicts.push({
+            type: 'APPLICANT_NAME_CROSS_MISMATCH',
+            title: `서류 간 응시자 성명 상이 (${e1.doc} vs ${e2.doc})`,
+            desc: `${e1.doc}의 응시자 이름('${e1.name}')과 ${e2.doc}의 응시자 이름('${e2.name}')이 서로 다릅니다.`,
+            fixGuide: '동일 응시자의 서류가 맞는지 확인하고 3종 서류의 응시자 성명을 일치시키십시오.'
+          });
+        }
+      }
+    }
+
+    // 2. Flatten all valid or parsed sessions
     if (clogData?.rows) {
       clogData.rows.forEach(r => {
         if (r.normDate && r.timeParsed) {

@@ -745,19 +745,24 @@ function renderChecklist() {
           }
         },
         {
-          name: '고객 다변화 (5명 이상) 및 응시자명 상단 기재',
-          rule: '최소 5명 이상의 다양한 고객 대상 코칭 필수(계약 인지 필수), 상단 A4/B4 셀 응시자 성명 필수',
+          name: '고객 다변화 (5명 이상) 및 응시자명 상단 기재/기준정보 일치',
+          rule: "최소 5명 이상의 다양한 고객 대상 코칭 필수(계약 인지 필수), 상단 A4 셀 응시자 성명 필수 및 '1. 응시 기준 정보 설정'과 일치",
           eval: () => {
             if (!clog) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
             const clientCount = clog.clientCount || 0;
-            const hasName = !clog.errors.some(e => e.code === 'CL-01');
-            if (clientCount >= 5 && hasName) {
-              return { status: 'PASS', value: `고객 ${clientCount}명 확보 / 성명 기재 정상`, detail: '고객 다변화 기준(5명 이상) 및 응시자 성명 기재 완료' };
-            } else if (clientCount < 5) {
-              return { status: 'FAIL', value: `고객 ${clientCount}명 (최소 5명 미달)`, detail: '최소 5명 이상의 다양한 고객에게 코칭을 진행해야 합니다.' };
-            } else {
-              return { status: 'FAIL', value: '상단 응시자 성명 누락', detail: '엑셀 상단 A4/B4 셀에 응시자 성명을 반드시 기재하십시오.' };
+            const hasMissing = clog.errors.some(e => e.code === 'CL-01');
+            const hasMismatch = clog.errors.some(e => e.code === 'CL-01-MISMATCH');
+
+            if (hasMismatch) {
+              return { status: 'FAIL', value: `응시자 성명 불일치 ('${clog.applicantName}' ≠ '${state.baseline.applicantName}')`, detail: '코칭일지의 응시자 명과 기준 정보의 응시자 성명이 일치하지 않습니다.' };
             }
+            if (hasMissing) {
+              return { status: 'FAIL', value: '상단 응시자 성명 누락', detail: '엑셀 상단 A4 셀에 응시자 성명을 반드시 기재하십시오.' };
+            }
+            if (clientCount < 5) {
+              return { status: 'FAIL', value: `고객 ${clientCount}명 (최소 5명 미달)`, detail: '최소 5명 이상의 다양한 고객에게 코칭을 진행해야 합니다.' };
+            }
+            return { status: 'PASS', value: `고객 ${clientCount}명 확보 / 성명 일치 ('${clog.applicantName}')`, detail: '고객 다변화 기준(5명 이상) 및 응시자 성명 기준정보 일치 완료' };
           }
         },
         {
@@ -826,13 +831,21 @@ function renderChecklist() {
           }
         },
         {
-          name: '멘토코치 자격 유효성 확인',
-          rule: '코칭 당시 유효한 KPC 이상의 인증코치 (자격 만료/정지 코치 건은 탈락 사유, KAC 코치 불가)',
+          name: '멘토코치 자격 유효성 확인 및 응시자 성명 일치',
+          rule: "코칭 당시 유효한 KPC 이상의 인증코치(KAC 불가) 및 상단 응시자 성명 '1. 응시 기준 정보 설정'과 일치",
           eval: () => {
             if (!ment) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const nameMismatch = ment.errors.find(e => e.code === 'MC-01-MISMATCH');
+            const nameMissing = ment.errors.find(e => e.code === 'MC-01');
+            if (nameMismatch) {
+              return { status: 'FAIL', value: `응시자 성명 불일치 ('${ment.applicantName}' ≠ '${state.baseline.applicantName}')`, detail: nameMismatch.message };
+            }
+            if (nameMissing) {
+              return { status: 'FAIL', value: '멘토코칭 상단 응시자 성명 누락', detail: nameMissing.message };
+            }
             const qualErr = ment.rows.filter(r => r.errors && r.errors.some(e => ['MC-07', 'MC-07-KAC', 'MC-08'].includes(e.code)));
             if (qualErr.length === 0) {
-              return { status: 'PASS', value: '멘토코치 자격 유효 확인', detail: '멘토코치 자격 등급(KPC/KSC) 및 유효 상태 정상' };
+              return { status: 'PASS', value: '멘토코치 자격 유효 및 성명 일치', detail: '멘토코치 자격 등급(KPC/KSC) 유효 및 응시자 성명 일치 확인' };
             } else {
               return { status: 'FAIL', value: `자격 이상 ${qualErr.length}건`, detail: '멘토코치 자격 만료/정지 또는 부적격자(KAC 포함) 적발 (탈락 위험)' };
             }
@@ -892,13 +905,21 @@ function renderChecklist() {
           }
         },
         {
-          name: '상위코치 자격 유효성 확인',
-          rule: '코칭 당시 유효한 KPC 이상의 인증코치 (자격 만료/정지 코치 건 미인정)',
+          name: '상위코치 자격 유효성 및 응시자 성명 일치',
+          rule: "코칭 당시 유효한 KPC 이상의 인증코치(자격 만료/정지 불가) 및 상단 응시자 성명 '1. 응시 기준 정보 설정'과 일치",
           eval: () => {
             if (!cctc) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
+            const nameMismatch = cctc.errors.find(e => e.code === 'CC-01-MISMATCH');
+            const nameMissing = cctc.errors.find(e => e.code === 'CC-01');
+            if (nameMismatch) {
+              return { status: 'FAIL', value: `응시자 성명 불일치 ('${cctc.applicantName}' ≠ '${state.baseline.applicantName}')`, detail: nameMismatch.message };
+            }
+            if (nameMissing) {
+              return { status: 'FAIL', value: '1:1 CTC 상단 응시자 성명 누락', detail: nameMissing.message };
+            }
             const qualErr = cctc.rows.filter(r => r.errors && r.errors.some(e => ['CC-07', 'CC-08'].includes(e.code)));
             if (qualErr.length === 0) {
-              return { status: 'PASS', value: '상위코치 자격 유효 확인', detail: '코치 자격(KPC/KSC) 및 유효 상태 정상' };
+              return { status: 'PASS', value: '상위코치 자격 유효 및 성명 일치', detail: '코치 자격(KPC/KSC) 유효 및 응시자 성명 일치 확인' };
             } else {
               return { status: 'FAIL', value: `자격 이상 ${qualErr.length}건`, detail: '상위코치 자격 만료/정지 건 적발' };
             }
@@ -924,13 +945,16 @@ function renderChecklist() {
       name: '4. 통합 교차 검증 (Cross-Timeline Check)',
       items: [
         {
-          name: '서류 간 상호 이중 기재(중복) 배제',
-          rule: '[코칭일지], [멘토코칭 리스트], [1:1 코치더코치 리스트] 상호 간 동일 세션 중복 기재 금지',
+          name: '서류 간 상호 이중 기재(중복) 배제 및 응시자 성명 일치',
+          rule: '[코칭일지], [멘토코칭 리스트], [1:1 코치더코치 리스트] 상호 간 동일 세션 중복 기재 금지 및 3종 서류 간 응시자 성명 완전 일치',
           eval: () => {
             if (!hasFiles) return { status: 'WAITING', value: '-', detail: '서류 업로드 대기중' };
             const crossDups = (cross || []).filter(c => c.type === 'CROSS_DUPLICATION');
-            if (crossDups.length === 0) {
-              return { status: 'PASS', value: '이중 기재 없음 (정상)', detail: '3종 서류 간 상호 중복 기재된 세션이 없습니다.' };
+            const nameConflicts = (cross || []).filter(c => c.type === 'APPLICANT_NAME_MISMATCH' || c.type === 'APPLICANT_NAME_CROSS_MISMATCH');
+            if (crossDups.length === 0 && nameConflicts.length === 0) {
+              return { status: 'PASS', value: '이중 기재/성명 불일치 없음 (정상)', detail: '3종 서류 간 상호 중복 기재가 없으며 응시자 성명이 일치합니다.' };
+            } else if (nameConflicts.length > 0) {
+              return { status: 'FAIL', value: `응시자 성명 불일치 ${nameConflicts.length}건`, detail: nameConflicts[0].desc };
             } else {
               return { status: 'FAIL', value: `중복 기재 ${crossDups.length}건`, detail: '동일 세션이 둘 이상의 서류에 이중으로 등록되었습니다.' };
             }
