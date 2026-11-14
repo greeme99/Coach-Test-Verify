@@ -140,6 +140,7 @@ class ExcelParser {
       if (docType === DOC_TYPES.COACHING_LOG) {
         // Cols: 0:날짜, 1:시간, 2:고객명, 3:유료, 4:무료, 5:받은CTC, 6:코칭형태
         rowData.dateStr = rowData.rawValues[0]?.text || '';
+        rowData.dateRaw = rowData.rawValues[0]?.raw;
         rowData.timeStr = rowData.rawValues[1]?.text || '';
         rowData.clientName = rowData.rawValues[2]?.text || '';
         rowData.paidVal = rowData.rawValues[3]?.raw;
@@ -149,6 +150,7 @@ class ExcelParser {
       } else if (docType === DOC_TYPES.MENTOR_COACHING) {
         // Cols: 0:날짜, 1:시간, 2:멘토코치명, 3:코치인증자격, 4:진행세션(분), 5:코칭형태
         rowData.dateStr = rowData.rawValues[0]?.text || '';
+        rowData.dateRaw = rowData.rawValues[0]?.raw;
         rowData.timeStr = rowData.rawValues[1]?.text || '';
         rowData.coachName = rowData.rawValues[2]?.text || '';
         rowData.certStatus = rowData.rawValues[3]?.text || '';
@@ -157,6 +159,7 @@ class ExcelParser {
       } else if (docType === DOC_TYPES.COACH_THE_COACH) {
         // Cols: 0:날짜, 1:시간, 2:코치명, 3:코치인증자격, 4:진행세션(분), 5:코칭형태
         rowData.dateStr = rowData.rawValues[0]?.text || '';
+        rowData.dateRaw = rowData.rawValues[0]?.raw;
         rowData.timeStr = rowData.rawValues[1]?.text || '';
         rowData.coachName = rowData.rawValues[2]?.text || '';
         rowData.certStatus = rowData.rawValues[3]?.text || '';

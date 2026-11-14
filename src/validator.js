@@ -52,10 +52,10 @@ class CoachingLogValidator {
     let totalCtcMinutesAfterKac = 0;
 
     rows.forEach((row) => {
-      const { rowIndex, dateStr, timeStr, clientName, paidVal, freeVal, ctcVal, formatStr } = row;
+      const { rowIndex, dateStr, dateRaw, timeStr, clientName, paidVal, freeVal, ctcVal, formatStr } = row;
       
       // Parse Date
-      const normDate = normalizeDate(dateStr);
+      const normDate = normalizeDate(dateStr, dateRaw);
       if (!normDate || !isStrictDateFormat(normDate)) {
         addRowError(rowIndex, 'CL-02-DATE', `날짜 형식이 올바르지 않습니다: '${dateStr}'`, "날짜는 'YYYY-MM-DD' 형식으로 작성해야 합니다.");
       }
@@ -363,8 +363,8 @@ class MentorValidator {
     const validDates = [];
 
     rows.forEach((row) => {
-      const { rowIndex, dateStr, timeStr, coachName, certStatus, sessionMinutesVal, formatStr } = row;
-      const normDate = normalizeDate(dateStr);
+      const { rowIndex, dateStr, dateRaw, timeStr, coachName, certStatus, sessionMinutesVal, formatStr } = row;
+      const normDate = normalizeDate(dateStr, dateRaw);
       const timeParsed = parseTimeRange(timeStr);
 
       if (!normDate || !isStrictDateFormat(normDate)) {
@@ -513,8 +513,8 @@ class CoachTheCoachValidator {
     let creditedMinutesTotal = 0;
 
     rows.forEach((row) => {
-      const { rowIndex, dateStr, timeStr, coachName, certStatus, sessionMinutesVal, formatStr } = row;
-      const normDate = normalizeDate(dateStr);
+      const { rowIndex, dateStr, dateRaw, timeStr, coachName, certStatus, sessionMinutesVal, formatStr } = row;
+      const normDate = normalizeDate(dateStr, dateRaw);
       const timeParsed = parseTimeRange(timeStr);
 
       if (!normDate || !isStrictDateFormat(normDate)) {
